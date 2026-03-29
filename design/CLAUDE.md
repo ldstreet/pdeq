@@ -87,6 +87,23 @@ If a platform-specific product supplement exists:
 > See also `../../product/<platform>/[feature].md` for platform-specific requirements.
 ```
 
+## Path Resolution
+
+At the start of each session, check for a `pdeq.json` config file:
+
+1. Look in `../../pdeq.json` (two levels up from this `design/<platform>/` subfolder) — the typical location.
+2. If not found, check `../pdeq.json`.
+
+If `pdeq.json` is found, read it and apply:
+
+- **`specsRoot`**: Directory containing `product/`, `design/`, `engineering/`, `qa/`. Adjust all upstream references accordingly (e.g., the product spec at `../../product/` becomes `{specsRoot}/product/`).
+- **`nested.label`**: If present, you are working on the `{label}` component. Acknowledge this in context messages.
+- **`nested.repoRoot`**: If present, this is a nested install. Paths in `index.md` are relative to `specsRoot`, not the git root.
+
+If `pdeq.json` is absent, assume upstream specs are at `../../product/` and the traceability index is at `../../index.md`.
+
+---
+
 ## Guidelines
 
 - Be specific. "A form" is not a design spec. Describe every field, label, placeholder, validation message, and button.

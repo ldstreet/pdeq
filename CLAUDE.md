@@ -11,6 +11,22 @@ You are the coordinator agent for this project. Your job is to orchestrate work 
 | `engineering/` | Engineering | Architecture docs, tech decisions, implementation plans, source code |
 | `qa/` | Quality Assurance | Test plans, test cases, coverage matrices, bug reports |
 
+## Path Resolution
+
+At the start of each session, check for a `pdeq.json` config file in the project root (same directory as this `CLAUDE.md`).
+
+If `pdeq.json` is found, read it and apply the following throughout this session:
+
+- **`specsRoot`**: The directory containing `product/`, `design/`, `engineering/`, and `qa/`. Use this path for all folder references and delegations. Default: `.` (same directory as `pdeq.json`).
+- **`codeRoot`**: The directory containing source code. Use this path when delegating implementation tasks to the engineering agent. Default: `.`.
+- **`platforms`**: List of platform IDs for this project. Use this to populate the platform table below if it is empty, and to determine which platform-specific subfolders exist.
+- **`nested.label`**: If present, you are coordinating a component named `{label}` within a larger repository. Scope all work to this component — do not create files outside `specsRoot` without explicit user instruction.
+- **`nested.repoRoot`**: If present, this is a nested install. The `.pdeq` submodule, `scripts/`, and `.claude/commands/` are at the git root, not necessarily in the same directory as these specs.
+
+If `pdeq.json` is absent, all paths default to the directory containing this `CLAUDE.md`.
+
+---
+
 ## Multi-Platform Support
 
 This project supports multiple target platforms. Each platform may have its own variant of specs across all functional areas.
@@ -294,3 +310,5 @@ This ensures `decisions.md` is only updated once per commit, keeping diffs clean
 - Keep a consistent naming convention across folders for the same feature (e.g., `auth.md` in product, design, engineering, and qa all relate to the same feature).
 - For platform-specific specs, use the same feature name in the platform subfolder (e.g., `design/mobile/auth.md`, `engineering/mobile/auth.md`, and `qa/mobile/auth.md` all relate to the mobile variant of the auth feature).
 - When a feature is being ported to a new platform, check `index.md` to find all existing specs and determine which need platform-specific variants.
+
+@FP_CLAUDE.md

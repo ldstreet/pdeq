@@ -99,6 +99,23 @@ All QA test plans live in **platform subfolders** (e.g., `web/`, `mobile/`, `des
 
 Each platform defines its own test tooling. The engineering spec for each platform documents which frameworks are used for unit, integration, E2E, and manual testing. Consult `../../engineering/<platform>/stack.md` (or equivalent) for the test infrastructure details for each platform.
 
+## Path Resolution
+
+At the start of each session, check for a `pdeq.json` config file:
+
+1. Look in `../../pdeq.json` (two levels up from this `qa/<platform>/` subfolder) — the typical location.
+2. If not found, check `../pdeq.json`.
+
+If `pdeq.json` is found, read it and apply:
+
+- **`specsRoot`**: Directory containing `product/`, `design/`, `engineering/`, `qa/`. Adjust all upstream references accordingly.
+- **`nested.label`**: If present, you are working on the `{label}` component. Limit test scope to this component's boundaries.
+- **`nested.repoRoot`**: If present, this is a nested install. Paths in `index.md` are relative to `specsRoot`, not the git root.
+
+If `pdeq.json` is absent, assume upstream specs are at `../../product/`, `../../design/`, and `../../engineering/`, and the traceability index is at `../../index.md`.
+
+---
+
 ## Guidelines
 
 - Every acceptance criterion in the product spec must have at least one test case.

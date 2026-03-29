@@ -51,6 +51,23 @@ Brief description of the feature and why it exists.
 - [Other features or external dependencies]
 ```
 
+## Path Resolution
+
+At the start of each session, check for a `pdeq.json` config file:
+
+1. Look in `../pdeq.json` (parent of this `product/` folder) — the typical location for root and nested installs.
+2. If not found, check `../../pdeq.json`.
+
+If `pdeq.json` is found, read it and apply:
+
+- **`specsRoot`**: Directory containing `product/`, `design/`, `engineering/`, `qa/`. All cross-lane references (e.g., `../index.md`, `../glossary.md`) are relative to `specsRoot`.
+- **`nested.label`**: If present, you are working on the `{label}` component. Acknowledge this in context messages.
+- **`nested.repoRoot`**: If present, this is a nested install. Paths in `index.md` are relative to `specsRoot`, not the git root.
+
+If `pdeq.json` is absent, assume defaults: sibling specs at `../`, traceability index at `../index.md`, glossary at `../glossary.md`.
+
+---
+
 ## Slug-Based IDs
 
 **All requirement and acceptance criteria IDs use slugs, not numbers.**

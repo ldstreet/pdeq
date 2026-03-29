@@ -112,6 +112,24 @@ engineering/apps/<platform>/   — source code for that platform
 
 Each platform defines its own tech stack. Document technology choices in the platform's `stack.md` or in the relevant feature engineering spec.
 
+## Path Resolution
+
+At the start of each session, check for a `pdeq.json` config file:
+
+1. Look in `../../pdeq.json` (two levels up from this `engineering/<platform>/` subfolder) — the typical location.
+2. If not found, check `../pdeq.json`.
+
+If `pdeq.json` is found, read it and apply:
+
+- **`specsRoot`**: Directory containing `product/`, `design/`, `engineering/`, `qa/`. Adjust all upstream references accordingly (e.g., the product spec at `../../product/` becomes `{specsRoot}/product/`).
+- **`codeRoot`**: Where source code lives. Use this when referencing or generating `apps/` paths — code may live outside the `engineering/` directory.
+- **`nested.label`**: If present, you are working on the `{label}` component. Acknowledge this in context messages and limit scope to this component's boundaries.
+- **`nested.repoRoot`**: If present, this is a nested install. Do not create files outside `specsRoot` without explicit user instruction.
+
+If `pdeq.json` is absent, assume upstream specs are at `../../product/` and `../../design/`, source code is at `apps/`, and the traceability index is at `../../index.md`.
+
+---
+
 ## Guidelines
 
 - Make decisions explicit. If you choose a library or pattern, document why.
