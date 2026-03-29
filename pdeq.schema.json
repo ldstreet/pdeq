@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://pdeq.dev/schema/pdeq.json",
+  "title": "pdeq.json",
+  "description": "Configuration file for a PDEQ install. Controls path resolution for specs, code, and nested/monorepo setups.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "specsRoot": {
+      "type": "string",
+      "description": "Relative path from this config file to the directory containing product/, design/, engineering/, and qa/ folders. Defaults to '.' (same directory as pdeq.json).",
+      "default": ".",
+      "examples": [".", "specs", "../specs"]
+    },
+    "codeRoot": {
+      "type": "string",
+      "description": "Relative path from this config file to the source code root. Used by the bootstrap analyzer. May point outside the pdeq directory.",
+      "default": ".",
+      "examples": [".", "src", "../src", "../../packages/api/src"]
+    },
+    "platforms": {
+      "type": "array",
+      "description": "List of platform IDs supported by this project. Supplements or replaces the platform table in CLAUDE.md. Each ID corresponds to a subfolder in design/, engineering/, and qa/.",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]*$",
+        "examples": ["web", "mobile", "ios", "android", "desktop", "cli"]
+      },
+      "uniqueItems": true,
+      "examples": [
+        ["web"],
+        ["ios", "android"],
+        ["web", "mobile", "cli"]
+      ]
+    },
+    "pdeqDir": {
+      "type": "string",
+      "description": "Path to the .pdeq submodule or framework directory, relative to the git root. Defaults to '.pdeq'.",
+      "default": ".pdeq",
+      "examples": [".pdeq", "tools/pdeq"]
+    },
+    "nested": {
+      "type": "object",
+      "description": "Configuration for nested installs (inside a monorepo package or feature subdirectory). Omit for root-level installs.",
+      "additionalProperties": false,
+      "required": ["repoRoot"],
+      "properties": {
+        "repoRoot": {
+          "type": "string",
+          "description": "Relative path from this config file up to the actual git root. Used to correctly resolve symlink targets for scripts and .claude/commands.",
+          "examples": ["../../..", "../..", ".."]
+        },
+        "label": {
+          "type": "string",
+          "description": "Human-readable name for this component or module. Used in agent context messages to clarify scope. Defaults to the directory name.",
+          "examples": ["auth-service", "ios-app", "api-gateway", "dashboard"]
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "$comment": "Root install — PDEQ and code live side-by-side at the repo root",
+      "specsRoot": ".",
+      "codeRoot": "src",
+      "platforms": ["web"],
+      "pdeqDir": ".pdeq"
+    },
+    {
+      "$comment": "Nested install — PDEQ lives inside a feature subfolder",
+      "specsRoot": ".",
+      "codeRoot": "../src",
+      "platforms": ["ios"],
+      "nested": {
+        "repoRoot": "../../..",
+        "label": "ios-app"
+      }
+    },
+    {
+      "$comment": "Monorepo package install — PDEQ lives at packages/api/pdeq/",
+      "specsRoot": ".",
+      "codeRoot": "../src",
+      "platforms": ["cli"],
+      "pdeqDir": ".pdeq",
+      "nested": {
+        "repoRoot": "../../..",
+        "label": "api-service"
+      }
+    }
+  ]
+}

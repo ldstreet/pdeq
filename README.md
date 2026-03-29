@@ -133,6 +133,82 @@ All tests passing + QA sign-off + design sign-off + product sign-off = done.
 
 ---
 
+## Configuration (pdeq.json)
+
+For projects where PDEQ is installed in a non-standard location — nested inside a monorepo package, alongside existing code with a separate source root, or as a component in a larger repo — create a `pdeq.json` at the PDEQ install root to override path assumptions.
+
+### Fields
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `specsRoot` | string | `"."` | Relative path from `pdeq.json` to the directory containing `product/`, `design/`, `engineering/`, `qa/` |
+| `codeRoot` | string | `"."` | Relative path from `pdeq.json` to the source code root (used by `/bootstrap`) |
+| `platforms` | string[] | — | Platform IDs; supplements the platform table in `CLAUDE.md` |
+| `pdeqDir` | string | `".pdeq"` | Path to the `.pdeq` submodule, relative to the git root |
+| `nested.repoRoot` | string | — | Path up to the actual git root (enables nested/monorepo installs) |
+| `nested.label` | string | — | Human-readable component name shown in agent context |
+
+A JSON Schema for validation is at `pdeq.schema.json`.
+
+### Example: root install
+
+```json
+{
+  "specsRoot": ".",
+  "codeRoot": "src",
+  "platforms": ["web"],
+  "pdeqDir": ".pdeq"
+}
+```
+
+### Example: nested install (PDEQ inside a feature subfolder)
+
+```
+repo/
+├── .git/
+└── features/
+    └── auth/
+        ├── src/         ← code lives here
+        └── pdeq/        ← PDEQ installed here; pdeq.json is in this folder
+```
+
+```json
+{
+  "specsRoot": ".",
+  "codeRoot": "../src",
+  "platforms": ["ios"],
+  "nested": {
+    "repoRoot": "../../..",
+    "label": "auth"
+  }
+}
+```
+
+### Example: monorepo package install
+
+```
+monorepo/
+├── .git/
+└── packages/
+    └── api/
+        ├── src/         ← code lives here
+        └── pdeq/        ← PDEQ installed here; pdeq.json is in this folder
+```
+
+```json
+{
+  "specsRoot": ".",
+  "codeRoot": "../src",
+  "platforms": ["cli"],
+  "nested": {
+    "repoRoot": "../../..",
+    "label": "api-service"
+  }
+}
+```
+
+---
+
 ## Scripts
 
 | Script | What it does |
