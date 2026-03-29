@@ -47,7 +47,7 @@ your-project/
 
 ## Getting Started
 
-### New project (recommended)
+### New project (greenfield)
 
 ```bash
 cd your-project
@@ -56,6 +56,30 @@ bash .pdeq/scripts/init.sh
 ```
 
 `init.sh` creates the folder structure, wires up `@` imports in each `CLAUDE.md`, and symlinks the commands and scripts. It's idempotent — safe to run again if something was skipped.
+
+### Existing project (adding PDEQ to code that already exists)
+
+```bash
+cd your-project
+git submodule add https://github.com/yourname/pdeq .pdeq
+bash .pdeq/scripts/init.sh --code-root src --platforms web --interactive
+```
+
+Then run `/bootstrap` in Claude Code to analyze your existing code and generate draft specs. See [docs/bootstrap.md](docs/bootstrap.md) for the full walkthrough.
+
+### Nested install (monorepo package or feature subfolder)
+
+```bash
+cd packages/my-service
+bash /path/to/pdeq/scripts/init.sh \
+  --pdeq-url https://github.com/yourname/pdeq \
+  --nested ../.. \
+  --label my-service \
+  --code-root src \
+  --platforms cli
+```
+
+This installs PDEQ into the current subfolder, points it at the real git root (`../..`), and generates `pdeq.json`. Scripts and `.claude/commands/` are symlinked from the git root so Claude Code can find them.
 
 ### Manual install
 
@@ -79,6 +103,7 @@ Open Claude Code in your project and use:
 | Command | What it does |
 |---|---|
 | `/kickoff [description]` | Full feature kickoff: triages scope → product spec → design spec → engineering spec + QA plan in parallel → traceability + consistency checks |
+| `/bootstrap [--dry-run] [--feature name]` | Import an existing codebase: analyzes code → generates draft specs → updates index.md → prints review checklist |
 | `/impact [slug or feature]` | Shows every artifact that would need to change if a requirement is modified |
 | `/status` | Project dashboard: feature coverage across all four lanes, slug coverage, traceability gaps |
 
