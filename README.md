@@ -2,11 +2,33 @@
 
 A Claude Code AI agent framework for structured software development across four lanes: **P**roduct, **D**esign, **E**ngineering, **Q**A.
 
-PDEQ enforces a methodology where specs drive code, requirements are fully traceable from definition to test, and each functional area stays in its lane. It works for any software project and supports multi-platform products out of the box.
+Specs drive code. Requirements are fully traceable from definition to test. Each functional area stays in its lane.
 
 ---
 
-## Core Philosophy
+## Quick Install
+
+```bash
+# From your project root
+git submodule add git@github.com:ldstreet/pdeq.git .pdeq
+bash .pdeq/scripts/init.sh
+```
+
+Or, if you already have PDEQ cloned locally:
+
+```bash
+bash /path/to/pdeq/scripts/init.sh --pdeq-url /path/to/pdeq
+```
+
+Then open Claude Code and run `/kickoff` to start your first feature.
+
+**Adding PDEQ to an existing codebase?** See [docs/bootstrap.md](docs/bootstrap.md) or run `/bootstrap` in Claude Code.
+
+---
+
+## How It Works
+
+### Core Philosophy
 
 **Markdown first, code second.** Spec files are the source of truth. Changes flow product → design → engineering → QA → code. Never the reverse.
 
@@ -16,9 +38,7 @@ PDEQ enforces a methodology where specs drive code, requirements are fully trace
 
 **Living specs.** Spec files represent current state. When a feature changes, update the existing file — don't create a new one.
 
----
-
-## Folder Structure
+### Folder Structure
 
 ```
 your-project/
@@ -33,9 +53,6 @@ your-project/
 ├── qa/
 │   └── <platform>/         # Test plans and coverage matrices
 ├── .claude/commands/       # Slash commands (symlinked from .pdeq)
-│   ├── kickoff.md
-│   ├── impact.md
-│   └── status.md
 ├── scripts/                # Audit and utility scripts (symlinked from .pdeq)
 ├── CLAUDE.md               # @.pdeq/CLAUDE.md + project-specific overrides
 ├── index.md                # Traceability index — slug → file map
@@ -51,17 +68,17 @@ your-project/
 
 ```bash
 cd your-project
-git submodule add https://github.com/yourname/pdeq .pdeq
+git submodule add git@github.com:ldstreet/pdeq.git .pdeq
 bash .pdeq/scripts/init.sh
 ```
 
 `init.sh` creates the folder structure, wires up `@` imports in each `CLAUDE.md`, and symlinks the commands and scripts. It's idempotent — safe to run again if something was skipped.
 
-### Existing project (adding PDEQ to code that already exists)
+### Existing project
 
 ```bash
 cd your-project
-git submodule add https://github.com/yourname/pdeq .pdeq
+git submodule add git@github.com:ldstreet/pdeq.git .pdeq
 bash .pdeq/scripts/init.sh --code-root src --platforms web --interactive
 ```
 
@@ -72,7 +89,7 @@ Then run `/bootstrap` in Claude Code to analyze your existing code and generate 
 ```bash
 cd packages/my-service
 bash /path/to/pdeq/scripts/init.sh \
-  --pdeq-url https://github.com/yourname/pdeq \
+  --pdeq-url git@github.com:ldstreet/pdeq.git \
   --nested ../.. \
   --label my-service \
   --code-root src \
@@ -80,10 +97,6 @@ bash /path/to/pdeq/scripts/init.sh \
 ```
 
 This installs PDEQ into the current subfolder, points it at the real git root (`../..`), and generates `pdeq.json`. Scripts and `.claude/commands/` are symlinked from the git root so Claude Code can find them.
-
-### Manual install
-
-Copy the CLAUDE.md files and `.claude/commands/` into your project and substitute `@../.pdeq/` paths with the actual content, or keep a local copy you update manually.
 
 ### Receiving updates
 
@@ -139,8 +152,6 @@ qa/web/auth.md             # Web test plan
 
 `product/` specs are platform-neutral — they describe *what* the feature does, not *how* it looks or is built. If a platform has unique product requirements, create a supplement at `product/<platform>/auth.md`.
 
-When porting an existing feature to a new platform, the product spec stays unchanged. Create new design, engineering, and QA specs in the new platform's subfolder.
-
 ---
 
 ## The Engineering-QA Loop
@@ -154,83 +165,22 @@ After engineering implements a feature:
 5. Repeat until all tests pass
 6. Design confirms implementation matches design spec; Product confirms all AC are met
 
-All tests passing + QA sign-off + design sign-off + product sign-off = done.
-
 ---
 
 ## Configuration (pdeq.json)
 
-For projects where PDEQ is installed in a non-standard location — nested inside a monorepo package, alongside existing code with a separate source root, or as a component in a larger repo — create a `pdeq.json` at the PDEQ install root to override path assumptions.
-
-### Fields
+For non-standard installs (nested, monorepo, separate code root), create `pdeq.json` at the PDEQ install root. `init.sh` generates this automatically when you pass flags.
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `specsRoot` | string | `"."` | Relative path from `pdeq.json` to the directory containing `product/`, `design/`, `engineering/`, `qa/` |
-| `codeRoot` | string | `"."` | Relative path from `pdeq.json` to the source code root (used by `/bootstrap`) |
-| `platforms` | string[] | — | Platform IDs; supplements the platform table in `CLAUDE.md` |
-| `pdeqDir` | string | `".pdeq"` | Path to the `.pdeq` submodule, relative to the git root |
-| `nested.repoRoot` | string | — | Path up to the actual git root (enables nested/monorepo installs) |
-| `nested.label` | string | — | Human-readable component name shown in agent context |
+| `specsRoot` | string | `"."` | Path from `pdeq.json` to the directory containing `product/`, `design/`, etc. |
+| `codeRoot` | string | `"."` | Path to source code root (used by `/bootstrap`) |
+| `platforms` | string[] | — | Platform IDs — subfolders in `design/`, `engineering/`, `qa/` |
+| `pdeqDir` | string | `".pdeq"` | Path to the `.pdeq` submodule, relative to git root |
+| `nested.repoRoot` | string | — | Path up to the actual git root |
+| `nested.label` | string | — | Component name shown in agent context |
 
-A JSON Schema for validation is at `pdeq.schema.json`.
-
-### Example: root install
-
-```json
-{
-  "specsRoot": ".",
-  "codeRoot": "src",
-  "platforms": ["web"],
-  "pdeqDir": ".pdeq"
-}
-```
-
-### Example: nested install (PDEQ inside a feature subfolder)
-
-```
-repo/
-├── .git/
-└── features/
-    └── auth/
-        ├── src/         ← code lives here
-        └── pdeq/        ← PDEQ installed here; pdeq.json is in this folder
-```
-
-```json
-{
-  "specsRoot": ".",
-  "codeRoot": "../src",
-  "platforms": ["ios"],
-  "nested": {
-    "repoRoot": "../../..",
-    "label": "auth"
-  }
-}
-```
-
-### Example: monorepo package install
-
-```
-monorepo/
-├── .git/
-└── packages/
-    └── api/
-        ├── src/         ← code lives here
-        └── pdeq/        ← PDEQ installed here; pdeq.json is in this folder
-```
-
-```json
-{
-  "specsRoot": ".",
-  "codeRoot": "../src",
-  "platforms": ["cli"],
-  "nested": {
-    "repoRoot": "../../..",
-    "label": "api-service"
-  }
-}
-```
+Full schema: [`pdeq.schema.json`](pdeq.schema.json)
 
 ---
 
@@ -241,4 +191,5 @@ monorepo/
 | `scripts/audit-traceability.sh` | Verifies every slug in `product/` is in `index.md`, every downstream reference resolves, and every path in `index.md` exists |
 | `scripts/audit-lanes.sh` | Checks product specs for design/engineering bleed (pixel values, library names, etc.) |
 | `scripts/merge-decisions.sh` | Merges `decisions-pending.md` into `decisions.md` at commit time |
-| `scripts/init.sh` | Installs PDEQ into a project (submodule + `@` imports + symlinks) |
+| `scripts/init.sh` | Installs PDEQ into a project (submodule + `@` imports + symlinks + pdeq.json) |
+| `scripts/bootstrap.sh` | Validates bootstrap preconditions and resolves paths before `/bootstrap` runs |
