@@ -21,7 +21,13 @@ All documentation goes in this `engineering/` folder as markdown files. Source c
 
 ### Architecture / Technical Spec Structure
 
+Every engineering spec begins with YAML frontmatter stamping the upstream product spec's hash and slug inventory (see root `CLAUDE.md` §Drift Detection). Recompute and rewrite both fields every time you create or update the spec.
+
 ```markdown
+---
+product-hash: <sha256 of normalized product/[feature].md>
+product-slugs: [FR-..., AC-..., NFR-...]
+---
 # [Feature Name] — Technical Spec
 
 > Based on requirements in `../../product/[feature].md`

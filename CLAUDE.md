@@ -294,6 +294,70 @@ When the user asks for a change, the flow is:
 5. **Then** update the code to reflect all of the above
 6. **Run the QA iteration loop** — execute tests, fix failures, iterate until green, get design/product sign-off
 
+## Drift Detection
+
+Product specs are the source of truth. Design, engineering, and QA specs are downstream artifacts derived from them. When a product spec changes, downstream specs must be reviewed — otherwise they silently drift out of sync.
+
+To make drift detectable (not just a soft convention), every downstream spec carries a **product-hash** and a **product-slugs** inventory in its YAML frontmatter. A later step can diff the stamped values against the current product spec and report exactly what needs updating.
+
+### Frontmatter fields
+
+Every design, engineering, and QA spec begins with YAML frontmatter of this shape:
+
+```yaml
+---
+product-hash: <64-char hex sha256>
+product-slugs: [FR-auth-email-login, AC-auth-invalid-password, NFR-auth-login-latency]
+---
+```
+
+- **`product-hash`** — sha256 of the normalized content of the upstream product spec (see rules below).
+- **`product-slugs`** — sorted, deduplicated list of every `FR-`, `NFR-`, and `AC-` slug defined in the upstream product spec at stamp time. `TC-` slugs are QA-owned and are **not** included.
+
+Only downstream specs carry these fields. Product specs themselves do not — they *are* the input.
+
+### Upstream product spec resolution
+
+The upstream product spec for a downstream spec at `<lane>/<platform>/<feature>.md` is always `product/<feature>.md` (the shared, platform-neutral spec). Platform-specific product supplements at `product/<platform>/<feature>.md` are not hashed — they are treated as addenda to the shared spec and any downstream variance is captured in the downstream spec itself.
+
+If `product/<feature>.md` does not exist, the downstream spec cannot be stamped. This is an error — product must exist first (see "The Cardinal Rule").
+
+### Hash normalization rules
+
+The hash must be deterministic across macOS, Linux, and any combination of git autocrlf settings. Normalization is applied to the raw file bytes before hashing:
+
+1. Strip a leading UTF-8 BOM (`EF BB BF`) if present.
+2. Convert CRLF (`\r\n`) to LF (`\n`). Lone CR (`\r`) is also converted to LF.
+3. Collapse trailing blank lines: strip any run of whitespace-only lines at end of file, then append exactly one LF. Files with no trailing newline gain one.
+4. Do not touch any other whitespace. Internal blank lines, leading/trailing spaces on non-blank lines, and tab/space indentation are preserved byte-for-byte.
+
+The hash is the lowercase hex sha256 of the normalized bytes. Implementations should use `sha256sum` on Linux and `shasum -a 256` on macOS; both produce identical output on identical input.
+
+### Slug extraction rules
+
+`product-slugs` is computed by scanning the **normalized** product spec for tokens matching `(FR|NFR|AC)-[a-z0-9-]+` (case-sensitive prefix, lowercase body). The resulting list is deduplicated and sorted ascending by byte order. `TC-` is excluded — test case slugs live in QA specs, not product.
+
+Tokens inside fenced code blocks are included (product specs occasionally embed example slugs in examples; treating code-fenced slugs specially would make extraction context-dependent and harder to reproduce).
+
+### When to stamp
+
+Downstream agents stamp `product-hash` and `product-slugs` every time they **create or update** a spec:
+
+- On create: compute both fields from the current product spec and write them into the new spec's frontmatter.
+- On update: recompute both fields and overwrite the stamped values, even if the update itself was not driven by a product change. The frontmatter always reflects the product spec as it stood at the moment the downstream spec was last touched.
+
+If the product spec does not yet exist, the downstream spec should not be created — product is a hard prerequisite.
+
+### Consumers
+
+The stamped fields are consumed by:
+
+- `/cascade` — diffs stamped hash/slugs against current product spec, reports per-lane drift, prompts for action.
+- `/audit` — standalone non-blocking drift report.
+- `scripts/audit-traceability.sh` — pre-commit hook extension that blocks commits when stamped values don't match the current product spec (subject to the `enforceCascade` config toggle and the `PDEQ_ALLOW_DRIFT=1` escape hatch).
+
+Workflow details, command definitions, and hook behavior are covered in their respective sections and command files. This section defines only the on-disk convention.
+
 ## Slash Commands
 
 The following custom commands are available:

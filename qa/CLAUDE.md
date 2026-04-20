@@ -22,7 +22,13 @@ All artifacts go in this `qa/` folder as markdown files. Name them to match the 
 
 ### Test Plan Structure
 
+Every test plan begins with YAML frontmatter stamping the upstream product spec's hash and slug inventory (see root `CLAUDE.md` §Drift Detection). Recompute and rewrite both fields every time you create or update the spec. `TC-` slugs are QA-owned and do **not** appear in `product-slugs`.
+
 ```markdown
+---
+product-hash: <sha256 of normalized product/[feature].md>
+product-slugs: [FR-..., AC-..., NFR-...]
+---
 # [Feature Name] — Test Plan
 
 > Based on requirements in `../../product/[feature].md`
