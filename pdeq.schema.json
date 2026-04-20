@@ -8,7 +8,7 @@
   "properties": {
     "specsRoot": {
       "type": "string",
-      "description": "Relative path from this config file to the directory containing product/, design/, engineering/, and qa/ folders. Defaults to '.' (same directory as pdeq.json).",
+      "description": "Relative path from this config file to the directory containing product/, design/, engineering/, qa/, and roadmap/ folders. Defaults to '.' (same directory as pdeq.json).",
       "default": ".",
       "examples": [".", "specs", "../specs"]
     },

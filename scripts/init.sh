@@ -21,7 +21,7 @@ set -euo pipefail
 #
 # Flags:
 #   --code-root <path>      Where source code lives (relative to install dir)
-#   --specs-root <path>     Where to put product/design/engineering/qa (default: .)
+#   --specs-root <path>     Where to put product/design/engineering/qa/roadmap (default: .)
 #   --nested <repo-root>    Path from install dir up to the actual git root
 #   --label <name>          Component name for nested installs
 #   --platforms <list>      Comma-separated platform IDs (e.g. ios,android)
@@ -165,7 +165,7 @@ fi
 # ---------------------------------------------------------------------------
 # Step 2: Resolve specs dir and build @ import prefixes
 # ---------------------------------------------------------------------------
-# SPECS_DIR: absolute path where product/design/engineering/qa will be created
+# SPECS_DIR: absolute path where product/design/engineering/qa/roadmap will be created
 if [[ "$OPT_SPECS_ROOT" == "." ]]; then
   SPECS_DIR="$INSTALL_DIR"
 else
@@ -193,7 +193,7 @@ fi
 # ---------------------------------------------------------------------------
 # Step 3: Create functional area directories + CLAUDE.md @ imports
 # ---------------------------------------------------------------------------
-for area in product design engineering qa; do
+for area in product design engineering qa roadmap; do
   areadir="$SPECS_DIR/$area"
   mkdir -p "$areadir"
   target="$areadir/CLAUDE.md"

@@ -29,6 +29,15 @@ Specs are **living documents** that represent the product as it is (or will be).
 
 When porting to a new platform, the base spec already exists — check if a platform-specific variant already exists too.
 
+### B.1) Check the roadmap
+
+Scan `roadmap/` (excluding CLAUDE.md) for an entry that matches this request. Two cases matter:
+
+- **Request matches a roadmap item** (e.g., user says "let's do the fast-follow for auth that we noted") — Read `roadmap/<feature>.md` to pull in the captured intent before delegating to product. The roadmap entry is context, not a spec — the product agent still writes proper requirements with slugs.
+- **Request matches an existing feature with a roadmap file** — Even if the user doesn't reference it, skim the roadmap for related future ideas that might inform scope decisions.
+
+Track which roadmap item(s) this kickoff graduates. You'll remove them in Step 4.
+
 ### C) Which functional areas are actually needed?
 
 Not every request requires all four areas. Decide which are relevant:
@@ -49,6 +58,7 @@ Announce your triage decision to the user before proceeding:
 - Which spec file(s) will be created or updated (including platform-specific variants)
 - Which functional areas will be involved and why
 - Which functional areas are being skipped and why
+- Which roadmap item(s), if any, will be graduated and removed
 
 ---
 
@@ -139,6 +149,8 @@ Maximize parallelism here — launch all independent tasks simultaneously using 
 4. **Reviewer pass** — Read all artifacts that were created or modified and check for gaps, inconsistencies, or mismatches between them. Report any issues found.
 
 5. **Consistency pass** — Check that terminology is consistent across all artifacts and matches `glossary.md`.
+
+6. **Graduate roadmap items** — If this kickoff consumed any roadmap entry (per Step 0 B.1), remove the graduated item(s) from `roadmap/<feature>.md`. Delete the file entirely if no items remain.
 
 ### After the parallel batch completes:
 

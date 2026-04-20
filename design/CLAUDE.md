@@ -24,24 +24,35 @@ All artifacts go in this `design/` folder as markdown files. Name them to match 
 
 > Based on requirements in `../../product/[feature].md`
 
+## What We're Designing
+One to three sentences of plain prose: what this design covers, the platform it targets,
+and any key constraints or goals that shaped the design decisions.
+
 ## Screen Inventory
 List of all screens/views this feature requires.
 
 ## Screen Definitions
 
 ### [Screen Name]
-- **Purpose**: What the user accomplishes here
+
+One sentence describing what the user is trying to accomplish on this screen.
+
 - **Entry points**: How the user gets here
 - **Layout**: Description of the layout and key regions
 - **Components**:
   - [Component]: [Description, states, behavior]
 - **States**: Empty, loading, error, populated, etc.
 - **Actions**: What the user can do and what happens
+- **Requirements satisfied**: `FR-<feature>-<slug>`, `AC-<feature>-<slug>`
 
 ## Interaction Flows
-Step-by-step flows for key user journeys.
+Step-by-step flows for key user journeys. Each flow starts with a brief context sentence
+describing the scenario and who the user is in that moment.
 
 ### [Flow Name]
+
+[One sentence: who the user is and what they're trying to do.]
+
 1. User does X → sees Y
 2. User does Z → system responds with W
 
@@ -49,6 +60,9 @@ Step-by-step flows for key user journeys.
 Reusable components introduced or used by this feature.
 
 ### [Component Name]
+
+One sentence describing what this component does and where it's used.
+
 - **Variants**: [List of variants]
 - **Props/Inputs**: [What drives its display]
 - **States**: [Visual states]
@@ -96,7 +110,7 @@ At the start of each session, check for a `pdeq.json` config file:
 
 If `pdeq.json` is found, read it and apply:
 
-- **`specsRoot`**: Directory containing `product/`, `design/`, `engineering/`, `qa/`. Adjust all upstream references accordingly (e.g., the product spec at `../../product/` becomes `{specsRoot}/product/`).
+- **`specsRoot`**: Directory containing `product/`, `design/`, `engineering/`, `qa/`, `roadmap/`. Adjust all upstream references accordingly (e.g., the product spec at `../../product/` becomes `{specsRoot}/product/`).
 - **`nested.label`**: If present, you are working on the `{label}` component. Acknowledge this in context messages.
 - **`nested.repoRoot`**: If present, this is a nested install. Paths in `index.md` are relative to `specsRoot`, not the git root.
 

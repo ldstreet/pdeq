@@ -29,6 +29,10 @@ All artifacts go in this `qa/` folder as markdown files. Name them to match the 
 > Based on design in `../../design/<platform>/[feature].md`
 > Based on technical spec in `../../engineering/<platform>/[feature].md`
 
+## What We're Testing
+One to three sentences describing the scope of this test plan: what feature is being
+verified, what platforms/environments are in scope, and any notable risk areas.
+
 ## Coverage Matrix
 
 | Requirement | Test Cases | Status |
@@ -38,7 +42,14 @@ All artifacts go in this `qa/` folder as markdown files. Name them to match the 
 
 ## Test Cases
 
-### `TC-<feature>-<slug>`: [Test Case Name]
+Test cases are grouped by scenario. Each case has a human-readable name as the heading
+with its TC slug as a tag — so you can read by scenario and look up by slug.
+
+### [Scenario Group — e.g., "Happy Path", "Error States", "Edge Cases"]
+
+Brief sentence describing what this group of tests is probing.
+
+#### [Test Case Name] `TC-<feature>-<slug>`
 - **Type**: Unit / Integration / E2E / Manual
 - **Covers**: `AC-auth-email-login`, `FR-auth-email-login`
 - **Preconditions**: [Setup needed]
@@ -46,8 +57,6 @@ All artifacts go in this `qa/` folder as markdown files. Name them to match the 
   1. [Step]
   2. [Step]
 - **Expected Result**: [What should happen]
-- **Edge Cases**:
-  - [Variation and expected behavior]
 
 ## Edge Cases & Error Scenarios
 Dedicated exploration of things that could go wrong.
@@ -108,7 +117,7 @@ At the start of each session, check for a `pdeq.json` config file:
 
 If `pdeq.json` is found, read it and apply:
 
-- **`specsRoot`**: Directory containing `product/`, `design/`, `engineering/`, `qa/`. Adjust all upstream references accordingly.
+- **`specsRoot`**: Directory containing `product/`, `design/`, `engineering/`, `qa/`, `roadmap/`. Adjust all upstream references accordingly.
 - **`nested.label`**: If present, you are working on the `{label}` component. Limit test scope to this component's boundaries.
 - **`nested.repoRoot`**: If present, this is a nested install. Paths in `index.md` are relative to `specsRoot`, not the git root.
 

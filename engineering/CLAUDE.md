@@ -27,16 +27,30 @@ All documentation goes in this `engineering/` folder as markdown files. Source c
 > Based on requirements in `../../product/[feature].md`
 > Based on design in `../../design/<platform>/[feature].md`
 
+## What We're Building
+Two to four sentences in plain prose: what this feature does technically, the key
+architectural decisions made, and why this approach was chosen over alternatives.
+This gives reviewers and future engineers context before they read the details.
+
 ## Technical Approach
 High-level summary of how this will be built.
 
 ## Data Model
+
+Brief sentence describing what data this feature owns and why.
+
 Entities, relationships, schemas.
 
 ## API / Interface Design
+
+Brief sentence describing the contract surface — who calls what and why.
+
 Endpoints, function signatures, contracts.
 
 ## Component Architecture
+
+Brief sentence describing how responsibility is divided across modules.
+
 How the code is organized for this feature. Key modules/classes/components.
 
 ## State Management
@@ -52,9 +66,12 @@ Anything relevant to performance, caching, optimization.
 Auth, input validation, data protection.
 
 ## Implementation Plan
-Ordered steps to build this feature.
-1. [Step]
-2. [Step]
+
+Ordered steps to build this feature. Each step includes a brief rationale so it's
+clear why that step comes before the next.
+
+1. **[Step name]** — [What this step does and why it's first/next]
+2. **[Step name]** — [What this step does and what it unlocks]
 ```
 
 ### Other Engineering Docs
@@ -121,7 +138,7 @@ At the start of each session, check for a `pdeq.json` config file:
 
 If `pdeq.json` is found, read it and apply:
 
-- **`specsRoot`**: Directory containing `product/`, `design/`, `engineering/`, `qa/`. Adjust all upstream references accordingly (e.g., the product spec at `../../product/` becomes `{specsRoot}/product/`).
+- **`specsRoot`**: Directory containing `product/`, `design/`, `engineering/`, `qa/`, `roadmap/`. Adjust all upstream references accordingly (e.g., the product spec at `../../product/` becomes `{specsRoot}/product/`).
 - **`codeRoot`**: Where source code lives. Use this when referencing or generating `apps/` paths — code may live outside the `engineering/` directory.
 - **`nested.label`**: If present, you are working on the `{label}` component. Acknowledge this in context messages and limit scope to this component's boundaries.
 - **`nested.repoRoot`**: If present, this is a nested install. Do not create files outside `specsRoot` without explicit user instruction.

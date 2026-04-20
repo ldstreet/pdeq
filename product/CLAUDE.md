@@ -26,26 +26,40 @@ Each feature gets a markdown file named after the feature (e.g., `auth.md`, `onb
 # [Feature Name]
 
 ## Overview
-Brief description of the feature and why it exists.
+Two to four sentences in plain prose: what this feature does, who it's for, and why it exists.
+Write this so a non-technical stakeholder can understand it.
 
 ## User Stories
 - As a [user type], I want to [action] so that [benefit].
 
 ## Requirements
-### Functional Requirements
-- `FR-<feature>-<slug>`: [Requirement]
-  - e.g., `FR-auth-email-login`: Users can log in with email and password
 
-### Non-Functional Requirements
-- `NFR-<feature>-<slug>`: [Requirement]
-  - e.g., `NFR-auth-login-latency`: Login response within 500ms
+Requirements are grouped under human-readable headings. Each requirement has a **readable label**
+in bold followed by its slug in backticks, then a description. This lets humans skim by label
+while agents can exhaustively enumerate by slug.
+
+### [Meaningful Group Name — e.g., "Core Behavior", "Error Handling", "Performance"]
+
+Brief sentence describing what this group covers.
+
+- **[Readable Label]** `FR-<feature>-<slug>`: [Requirement description]
+  - e.g., **Email login** `FR-auth-email-login`: Users can log in with email and password.
+- **[Readable Label]** `NFR-<feature>-<slug>`: [Non-functional requirement]
+  - e.g., **Login speed** `NFR-auth-login-latency`: Login response completes within 500ms.
+
+### [Another Group — e.g., "Edge Cases"]
+
+- **[Readable Label]** `FR-<feature>-<slug>`: [Requirement]
 
 ## Acceptance Criteria
-- [ ] `AC-<feature>-<slug>`: [Testable criterion]
-  - e.g., `AC-auth-invalid-password`: Show error on wrong password
+
+These are the testable conditions that define "done." QA writes test cases against these.
+
+- [ ] **[Readable Label]** `AC-<feature>-<slug>`: [Testable criterion]
+  - e.g., **Wrong password error** `AC-auth-invalid-password`: Entering an incorrect password shows a clear error message and does not log the user in.
 
 ## Open Questions
-- [Anything unresolved]
+- [Anything unresolved — flag rather than assume]
 
 ## Dependencies
 - [Other features or external dependencies]
@@ -60,7 +74,7 @@ At the start of each session, check for a `pdeq.json` config file:
 
 If `pdeq.json` is found, read it and apply:
 
-- **`specsRoot`**: Directory containing `product/`, `design/`, `engineering/`, `qa/`. All cross-lane references (e.g., `../index.md`, `../glossary.md`) are relative to `specsRoot`.
+- **`specsRoot`**: Directory containing `product/`, `design/`, `engineering/`, `qa/`, `roadmap/`. All cross-lane references (e.g., `../index.md`, `../glossary.md`) are relative to `specsRoot`.
 - **`nested.label`**: If present, you are working on the `{label}` component. Acknowledge this in context messages.
 - **`nested.repoRoot`**: If present, this is a nested install. Paths in `index.md` are relative to `specsRoot`, not the git root.
 
@@ -141,3 +155,53 @@ Product specs describe **what** the application does and **why**, never **how** 
 | "run in a background thread" | "should not block UI rendering" |
 | "using the OS dark mode API" | "detects the OS color scheme preference" |
 | "stored in localStorage" | "persisted using local storage appropriate to the platform" |
+
+## Requirement Format: Before/After
+
+This shows the same requirement written in the old format vs. the preferred format.
+
+**Before (hard to skim, slug leads):**
+```markdown
+## Requirements
+### Functional Requirements
+- `FR-auth-email-login`: Users can log in with email and password
+- `FR-auth-forgot-password`: Users can request a password reset via email
+- `FR-auth-session-persist`: Session persists across app restarts
+
+### Non-Functional Requirements
+- `NFR-auth-login-latency`: Login response within 500ms
+
+## Acceptance Criteria
+- [ ] `AC-auth-invalid-password`: Show error on wrong password
+- [ ] `AC-auth-empty-email`: Prevent submission with empty email field
+```
+
+**After (human-readable labels, agent-friendly slugs, meaningful groups):**
+```markdown
+## Requirements
+
+### Core Behavior
+
+Users need to get into the app and stay authenticated without friction.
+
+- **Email login** `FR-auth-email-login`: Users can log in with their email address and password.
+- **Forgot password** `FR-auth-forgot-password`: Users can request a password reset link sent to their email.
+- **Persistent session** `FR-auth-session-persist`: A successful login persists across app restarts until the user explicitly logs out.
+
+### Performance
+
+- **Login speed** `NFR-auth-login-latency`: The login response completes within 500ms under normal conditions.
+
+## Acceptance Criteria
+
+These cover error and validation behavior that QA will test directly.
+
+- [ ] **Wrong password error** `AC-auth-invalid-password`: Entering an incorrect password shows a clear error message and does not log the user in.
+- [ ] **Empty email blocked** `AC-auth-empty-email`: Submitting the login form with an empty email field is prevented with a validation message.
+```
+
+Key differences:
+- Each requirement has a **bold readable label** before its slug — humans can skim labels, agents enumerate slugs.
+- Sections are named after what they cover ("Core Behavior") not what they are ("Functional Requirements").
+- A brief sentence introduces each section for human context.
+- All slugs are still present and greppable — traceability tooling is unaffected.

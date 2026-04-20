@@ -17,7 +17,7 @@ At the start of each session, check for a `pdeq.json` config file in the project
 
 If `pdeq.json` is found, read it and apply the following throughout this session:
 
-- **`specsRoot`**: The directory containing `product/`, `design/`, `engineering/`, and `qa/`. Use this path for all folder references and delegations. Default: `.` (same directory as `pdeq.json`).
+- **`specsRoot`**: The directory containing `product/`, `design/`, `engineering/`, `qa/`, and `roadmap/`. Use this path for all folder references and delegations. Default: `.` (same directory as `pdeq.json`).
 - **`codeRoot`**: The directory containing source code. Use this path when delegating implementation tasks to the engineering agent. Default: `.`.
 - **`platforms`**: List of platform IDs for this project. Use this to populate the platform table below if it is empty, and to determine which platform-specific subfolders exist.
 - **`nested.label`**: If present, you are coordinating a component named `{label}` within a larger repository. Scope all work to this component — do not create files outside `specsRoot` without explicit user instruction.
@@ -102,6 +102,39 @@ When a user requests a change to an existing feature:
 Only create a new spec file when the request describes a **genuinely new feature** that doesn't belong in any existing spec.
 
 Before starting work on any request, always scan existing specs in `product/` to see if there's already a file that covers this area.
+
+**Forward-looking ideas (fast follows, V2, "someday" work) do not belong in specs.** Specs describe the feature as it exists or is actively being built today. Park unscoped future ideas in `roadmap/<feature>.md` — see the Roadmap section below.
+
+## Roadmap: Forward-Looking Ideas
+
+The `roadmap/` folder holds forward-looking notes for features — fast follows, V2 ideas, future directions — that are **not yet scoped** for implementation.
+
+Roadmap entries are intentionally lightweight. They capture intent and direction without the structure of a full spec. No requirements, no slugs, no lane discipline. Purpose: park ideas so product specs stay focused on what exists today, and so future kickoffs have a starting point.
+
+### Structure
+
+- `roadmap/<feature>.md` — one file per feature, same filename as the product spec it extends (or will become).
+- `roadmap/_overview.md` — optional, for cross-cutting or multi-feature vision.
+
+### Inside each file
+
+- Short prose intro — where this feature is headed.
+- Sections by horizon (e.g. **Fast Follow**, **V2**, **Later**). Each is a bullet list of ideas with brief rationale.
+- Reference current state via relative path to the product spec when relevant (e.g. `see ../product/auth.md`).
+
+### Rules
+
+- **No slugs.** Slugs are minted only when an idea graduates into `product/`.
+- **Not platform-scoped at the folder level.** If an idea is platform-specific, say so inline.
+- **Not tracked in `index.md`.** Roadmap is not authoritative.
+- **Not audited by the pre-commit hook.**
+- **No lane discipline.** Roadmap can hand-wave across product/design/engineering/QA concerns.
+
+### Graduation flow
+
+When a roadmap item is ready for implementation:
+1. Run `/kickoff` on that item — this creates the proper product spec (with slugs), design, engineering, and QA artifacts.
+2. Remove the item from the roadmap file. Delete the file if empty.
 
 ## Lane Discipline
 
@@ -231,6 +264,18 @@ Artifacts should reference each other using relative paths and requirement slugs
 
 This keeps everything traceable.
 
+## Spec Writing Philosophy
+
+Specs are written for two audiences: **humans** (reviewers, stakeholders, collaborators) and **agents** (code generation, QA, traceability tooling). Good specs serve both without sacrificing either.
+
+**Principles:**
+
+- **Prose overview first, structure second.** Every spec starts with a short plain-language summary of what the feature is and why it exists. A reviewer should be able to understand the feature from the first paragraph without reading any tables or IDs.
+- **Human-readable labels alongside slugs.** Requirements use a **Bold Label** `slug` format so humans can skim by label while agents enumerate by slug. Never use a slug as the only identifier — always pair it with a readable name.
+- **Group by meaning, not by type.** Requirements are grouped under headings like "Core Behavior" or "Error Handling", not just "Functional Requirements". This reflects how humans think about features.
+- **Structured lists are preserved.** The structured requirement lists, coverage matrices, and test case steps remain intact. Agents rely on these to enumerate requirements exhaustively when writing code and tests.
+- **Slug annotations stay inline.** Slugs appear alongside their requirements, not in a separate traceability section. This keeps the spec readable in one pass while keeping slugs present for tooling.
+
 ## The Cardinal Rule: Markdown First, Code Second
 
 **The markdown files are the primary artifacts of this project. Code is a secondary artifact derived from them.**
@@ -253,7 +298,7 @@ When the user asks for a change, the flow is:
 
 The following custom commands are available:
 
-- **`/kickoff [feature description]`** — Full feature kickoff. Determines target platform(s), then creates product spec → design spec → engineering spec → QA test plan (plus platform-specific variants as needed) → updates index, glossary, and pending decisions → runs review and consistency checks.
+- **`/kickoff [feature description]`** — Full feature kickoff. Checks `roadmap/` for an existing entry to pull context from, then determines target platform(s) and creates product spec → design spec → engineering spec → QA test plan (plus platform-specific variants as needed) → updates index, glossary, and pending decisions → runs review and consistency checks. If a roadmap entry was used, remove the corresponding item from `roadmap/<feature>.md` once the spec is minted.
 - **`/impact [slug or feature]`** — Impact analysis. Reads `index.md` to report every artifact that would need to change if a requirement is modified.
 - **`/status`** — Project dashboard. Scans all folders and reports feature coverage, slug coverage, and traceability gaps.
 
@@ -305,6 +350,7 @@ This ensures `decisions.md` is only updated once per commit, keeping diffs clean
 ## Other Rules
 
 - Never create requirements, designs, architecture docs, or test plans outside their designated folders.
+- Keep unscoped future ideas in `roadmap/`, not in product, design, engineering, or QA specs. Specs describe today.
 - Always start with product requirements before moving to other functions, unless the user explicitly asks otherwise.
 - When updating one area, consider whether dependent areas need updates too. Flag this to the user.
 - Keep a consistent naming convention across folders for the same feature (e.g., `auth.md` in product, design, engineering, and qa all relate to the same feature).
