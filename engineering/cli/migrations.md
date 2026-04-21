@@ -115,7 +115,7 @@ Satisfies `FR-migrations-dry-run`, `FR-migrations-explicit-run`.
 
 ### Migration discovery and ordering
 
-Discovery is filesystem-driven: every `*.md` file in `$PDEQ_MIGRATIONS_DIR` is a candidate. Filename-minus-extension must be a valid semver string; files that fail validation are an error (not silently skipped) because they indicate author mistakes.
+Discovery is filesystem-driven: every `*.md` file in `$PDEQ_MIGRATIONS_DIR` is a candidate, with one exclusion. Files whose basename is `TEMPLATE.md` or `README.md`, or whose filename stem starts with `_`, are skipped — these are authoring aids, not migrations. Every other `*.md` file's filename-minus-extension must be a valid semver string (`^[0-9]+\.[0-9]+\.[0-9]+$`); files that fail validation are an error (not silently skipped) because they indicate author mistakes.
 
 Ordering uses the shell-native semver comparator (see below). "Pending" is defined as `version > recorded AND version <= pinned`. The pinned bound matters: a submodule that contains migrations for versions newer than the pinned version (because, for example, a maintainer fat-fingered a partial checkout) should not apply those migrations.
 
