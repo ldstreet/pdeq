@@ -6,6 +6,12 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "pdeqVersion": {
+      "type": "string",
+      "description": "Pdeq version that this project's specs and config conform to. Set by scripts/init.sh on install and updated by /migrate. A missing value means the project predates the migrations feature.",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "examples": ["0.2.0", "0.4.0", "1.0.0"]
+    },
     "specsRoot": {
       "type": "string",
       "description": "Relative path from this config file to the directory containing product/, design/, engineering/, qa/, and roadmap/ folders. Defaults to '.' (same directory as pdeq.json).",
@@ -61,6 +67,7 @@
   "examples": [
     {
       "$comment": "Root install — PDEQ and code live side-by-side at the repo root",
+      "pdeqVersion": "0.2.0",
       "specsRoot": ".",
       "codeRoot": "src",
       "platforms": ["web"],
