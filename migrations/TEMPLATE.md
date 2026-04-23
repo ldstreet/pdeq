@@ -5,6 +5,8 @@ summary: One-line description shown in /migrate output after the em-dash.
 scope: default
 ---
 
+<!-- Implements: FR-migrations-author-written, FR-migrations-idempotent -->
+
 # Migration X.Y.Z — Short title
 
 <!--

@@ -620,37 +620,38 @@ Every product slug is addressed by some piece of this engineering approach.
 
 ## Code Map
 
-Planned code locations for every functional requirement. Status is `planned` for
-slugs that have not yet been backfilled with inline markers — PDEQ-nydghudw tracks
-that backfill work. When markers land, rows flip to `implemented`.
+Code locations for every functional requirement. Rows marked `implemented` have
+at least one inline marker in the listed file; `planned` rows point at files
+that do not yet exist (the /migrate command file and audit-migrations.sh gate);
+`unimplemented` rows are deliberately deferred.
 
 | Slug | Planned location | Status |
 |---|---|---|
-| FR-migrations-version-field | pdeq.schema.json; scripts/init.sh | planned |
-| FR-migrations-version-readable | scripts/migrate.sh:recorded | planned |
-| FR-migrations-absent-version | scripts/migrate.sh:recorded | planned |
-| FR-migrations-one-per-version | scripts/migrate.sh:list-pending | planned |
-| FR-migrations-ordered | scripts/migrate.sh:list-pending | planned |
-| FR-migrations-mechanical-block | .claude/commands/migrate.md | planned |
-| FR-migrations-semantic-block | .claude/commands/migrate.md | planned |
+| FR-migrations-version-field | scripts/init.sh | implemented |
+| FR-migrations-version-readable | scripts/migrate.sh | implemented |
+| FR-migrations-absent-version | scripts/migrate.sh | implemented |
+| FR-migrations-one-per-version | scripts/migrate.sh | implemented |
+| FR-migrations-ordered | scripts/migrate.sh | implemented |
+| FR-migrations-mechanical-block | scripts/migrate.sh | implemented |
+| FR-migrations-semantic-block | scripts/migrate.sh | implemented |
 | FR-migrations-order-within | .claude/commands/migrate.md | planned |
-| FR-migrations-author-written | migrations/TEMPLATE.md | planned |
+| FR-migrations-author-written | migrations/TEMPLATE.md | implemented |
 | FR-migrations-explicit-run | .claude/commands/migrate.md | planned |
-| FR-migrations-pending-detection | scripts/migrate.sh:list-pending | planned |
+| FR-migrations-pending-detection | scripts/migrate.sh | implemented |
 | FR-migrations-ordered-application | .claude/commands/migrate.md | planned |
-| FR-migrations-version-bump | scripts/migrate.sh:bump | planned |
-| FR-migrations-nonbreaking-advance | scripts/migrate.sh:lineage-breaking | planned |
-| FR-migrations-noop-when-current | scripts/migrate.sh:list-pending | planned |
+| FR-migrations-version-bump | scripts/migrate.sh | implemented |
+| FR-migrations-nonbreaking-advance | scripts/migrate.sh | implemented |
+| FR-migrations-noop-when-current | scripts/migrate.sh | implemented |
 | FR-migrations-dry-run | .claude/commands/migrate.md | planned |
-| FR-migrations-idempotent | migrations/TEMPLATE.md | planned |
-| FR-migrations-scoped-writes | scripts/migrate.sh:audit-scope | planned |
+| FR-migrations-idempotent | migrations/TEMPLATE.md | implemented |
+| FR-migrations-scoped-writes | scripts/migrate.sh | implemented |
 | FR-migrations-breaking-gate | scripts/audit-migrations.sh | planned |
 | FR-migrations-no-false-positive | scripts/audit-migrations.sh | planned |
-| FR-migrations-lineage-integrity | scripts/migrate.sh:check-lineage | planned |
+| FR-migrations-lineage-integrity | scripts/migrate.sh | implemented |
 | FR-migrations-bootstrap-chain | — | unimplemented |
 | FR-migrations-self-migration | .claude/commands/migrate.md | planned |
-| FR-migrations-atomic-bump | scripts/migrate.sh:bump; .claude/commands/migrate.md | planned |
+| FR-migrations-atomic-bump | scripts/migrate.sh | implemented |
 | FR-migrations-failure-report | .claude/commands/migrate.md | planned |
-| FR-migrations-recoverable-partial | scripts/migrate.sh:bump | planned |
-| FR-migrations-unknown-version | scripts/migrate.sh:check-lineage | planned |
-| FR-migrations-missing-file-refused | scripts/migrate.sh:lineage-breaking | planned |
+| FR-migrations-recoverable-partial | scripts/migrate.sh | implemented |
+| FR-migrations-unknown-version | scripts/migrate.sh | implemented |
+| FR-migrations-missing-file-refused | scripts/migrate.sh | implemented |

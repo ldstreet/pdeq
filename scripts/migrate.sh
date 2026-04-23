@@ -79,6 +79,7 @@ major_minor() {
 #
 # Read pdeqVersion from pdeq.json. Empty output if the file or field is absent.
 
+# Implements: FR-migrations-version-readable, FR-migrations-absent-version
 cmd_recorded() {
   [[ -f "$CONFIG_PATH" ]] || { echo ""; return; }
   # Tolerant match — field can appear anywhere on a line, not just after
@@ -91,6 +92,7 @@ cmd_recorded() {
 #
 # Read single-line semver from the VERSION file.
 
+# Implements: FR-migrations-version-readable
 cmd_pinned() {
   local f
   f=$(pinned_file)
@@ -105,6 +107,7 @@ cmd_pinned() {
 # Sorted ascending. Exits 2 on malformed filename (author mistake).
 # Skips TEMPLATE.md, README.md, and filenames starting with `_`.
 
+# Implements: FR-migrations-pending-detection, FR-migrations-ordered, FR-migrations-one-per-version, FR-migrations-noop-when-current
 cmd_list_pending() {
   [[ -d "$MIGRATIONS_DIR" ]] || return 0
   local recorded pinned v base
@@ -149,6 +152,7 @@ cmd_list_pending() {
 #
 # Validates frontmatter target-version matches filename stem.
 
+# Implements: FR-migrations-mechanical-block, FR-migrations-semantic-block
 cmd_parse() {
   local file="$1"
   [[ -f "$file" ]] || die "no such file: $file"
@@ -212,6 +216,7 @@ cmd_parse() {
 # Creates the file if missing. Inserts the field if absent. Rewrites in place
 # if present. Atomic via temp file + mv.
 
+# Implements: FR-migrations-version-bump, FR-migrations-atomic-bump, FR-migrations-recoverable-partial
 cmd_bump() {
   local target="$1"
   is_semver "$target" || die "bump: not semver: $target"
@@ -264,6 +269,7 @@ cmd_bump() {
 # treat as no-op success (pre-baseline pdeq repo itself, before it adds its
 # own submodule).
 
+# Implements: FR-migrations-lineage-integrity, FR-migrations-unknown-version
 cmd_check_lineage() {
   local recorded
   recorded=$(cmd_recorded)
@@ -292,6 +298,7 @@ cmd_check_lineage() {
 # (exclusive) and <to> (inclusive). "Breaking" = MAJOR or MINOR change
 # relative to the previous lineage entry. A PATCH bump is non-breaking.
 
+# Implements: FR-migrations-nonbreaking-advance, FR-migrations-missing-file-refused
 cmd_lineage_breaking() {
   local from="$1" to="$2"
   is_semver "$from" || die "lineage-breaking: from not semver: $from"
@@ -344,6 +351,7 @@ cmd_lineage_breaking() {
 #   pdeq.json
 # where <specsRoot> is PDEQ_SPECS_ROOT, else pdeq.json's specsRoot, else `.`.
 
+# Implements: FR-migrations-scoped-writes
 cmd_audit_scope() {
   local file="$1"
   [[ -f "$file" ]] || die "audit-scope: no such file: $file"

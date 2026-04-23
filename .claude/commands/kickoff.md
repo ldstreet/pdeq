@@ -114,6 +114,11 @@ Read the product spec and design spec (whichever exist). Delegate to the enginee
 - **New spec**: Have it create a technical spec following `engineering/CLAUDE.md`.
 - **Platform-specific variant**: Tell the agent which base engineering spec to reference and have it create a platform-specific variant. The variant covers platform-specific architecture (e.g., different UI frameworks, native APIs vs web APIs) and references the base spec for shared patterns.
 
+Tell the engineering agent explicitly:
+
+- **Populate the Code Map section.** Every platform engineering spec must include a `## Code Map` table with one row per functional requirement. If no code exists yet, use `—` for the location and Status `planned`. If a requirement is deliberately deferred, Status `unimplemented` (exempts it from coverage warnings). See the template in `engineering/CLAUDE.md`.
+- **Stamp `product-hash` and `product-slugs` frontmatter.** Recompute both from the current product spec every time the engineering spec is created or updated.
+
 Do NOT write code at this stage — only the technical spec.
 
 ### QA Test Plan
@@ -166,3 +171,13 @@ Present a summary to the user:
 - What was **skipped** and why
 - Any issues found during review or consistency checks
 - Traceability audit result (pass/fail)
+
+Then print a reminder about inline markers:
+
+> **Next when you implement this feature:** add `// Implements: <slug>`
+> markers (or the language-appropriate form — `#` for shell/Python,
+> `<!-- ... -->` for Markdown, etc.) at the smallest enclosing unit
+> that realizes each functional requirement. The pre-commit audit
+> will pick them up and populate the `Code` column in `index.md`
+> automatically. See the root `CLAUDE.md` §Requirement ↔ Code Mapping
+> for the full syntax table.
