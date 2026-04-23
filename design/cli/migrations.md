@@ -413,8 +413,8 @@ scope: default
 
 ## Context
 
-Pdeq 0.3.0 replaces numbered slugs (`FR-auth-1`, `FR-auth-2`) with
-descriptive slugs (`FR-auth-email-login`, `FR-auth-forgot-password`).
+Pdeq 0.3.0 replaces numbered slugs (`FR-ex-auth-1`, `FR-ex-auth-2`) with
+descriptive slugs (`FR-ex-auth-email-login`, `FR-ex-auth-forgot-password`).
 Numbered slugs are brittle because inserting or removing a requirement
 renumbers everything downstream.
 

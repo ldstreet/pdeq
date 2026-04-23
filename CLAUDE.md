@@ -37,7 +37,7 @@ Platforms are defined per-project. Common examples include `web` (browser-based)
 
 | Platform ID | Description | Status |
 |---|---|---|
-| _(add platforms here)_ | | |
+| `cli` | pdeq framework itself — shell scripts, slash commands, hooks, and agent prompts that install into consumer projects via git submodule | Active |
 
 New platforms are added by updating this table and following the conventions below.
 
@@ -235,6 +235,8 @@ Format: `<PREFIX>-<feature>-<descriptive-slug>`
 
 Slugs are permanent — never renamed or reused after creation.
 
+**Example slugs.** Prose examples, fixture placeholders, and migration-rename illustrations use the reserved prefix `FR-ex-…` / `NFR-ex-…` / `AC-ex-…` / `TC-ex-…`. The traceability audit ignores any slug starting with `<prefix>-ex-`, so example slugs can appear freely in downstream specs without needing a matching definition in `product/`. Do not use the `-ex-` prefix for real requirements.
+
 ## Traceability Index
 
 The file `index.md` in the project root is the **traceability index**. It maps every requirement slug to everywhere it's referenced: design specs, engineering specs, code files, and test cases.
@@ -357,6 +359,38 @@ The stamped fields are consumed by:
 - `scripts/audit-traceability.sh` — pre-commit hook extension that blocks commits when stamped values don't match the current product spec (subject to the `enforceCascade` config toggle and the `PDEQ_ALLOW_DRIFT=1` escape hatch).
 
 Workflow details, command definitions, and hook behavior are covered in their respective sections and command files. This section defines only the on-disk convention.
+
+## Requirement ↔ Code Mapping
+
+The traceability index maps every requirement slug to all *spec* files that define or reference it. A parallel convention maps every slug to the *code* that realizes it, so an agent asking "where is `FR-auth-email-login` implemented?" gets a single-lookup answer rather than grep-and-guess. The convention has three reinforcing layers.
+
+### Inline markers
+
+When code realizes a functional requirement, it carries a short comment marker at the implementing unit citing the slug. The marker's comment syntax depends on the file kind:
+
+| File kind | Marker form | Example |
+|---|---|---|
+| C-family (`.ts, .js, .go, .swift, .java, .c, .cpp, .rs, …`) | `// Implements: <slug>` | `// Implements: FR-auth-email-login` |
+| Shell / scripting (`.sh, .py, .rb, .yaml, …`) | `# Implements: <slug>` | `# Implements: FR-migrations-version-bump` |
+| SQL | `-- Implements: <slug>` | `-- Implements: FR-db-read-replica` |
+| HTML / Markdown | `<!-- Implements: <slug> -->` (close token on same line) | `<!-- Implements: FR-kickoff-roadmap-pull -->` |
+| Block-comment only (`.css, .scss`) | `/* Implements: <slug> */` | `/* Implements: FR-ui-dark-mode */` |
+
+Rules:
+- Place the marker on or immediately above the smallest enclosing function, method, or block that implements the requirement — not at file-top when the file contains named units.
+- One marker may cite multiple slugs: `// Implements: FR-x, FR-y`. The full marker stays on a single source line.
+- The cited slug must exist in a current product spec. An orphan marker (citing an unknown or retired slug) blocks commits.
+- When a requirement is removed from a product spec, markers citing it must be removed in the same change set — retirement does not grant a grace period.
+
+### Code Map in engineering specs
+
+Every platform-specific engineering spec includes a `## Code Map` section with a three-column table: Slug, Planned location, Status (`implemented` / `planned` / `unimplemented`). The Code Map captures implementation intent before code exists and stays current as files move. A row marked `implemented` whose file contains no marker for the slug is a drift the audit blocks on. A row marked `unimplemented` is an explicit acknowledgment that the slug is deliberately deferred, exempting it from coverage warnings and blocks.
+
+### Audit
+
+`scripts/audit-traceability.sh` scans the tree for markers, validates them against the product-defined slug set, reconciles them with Code Map rows, and regenerates the `Code` column in `index.md`. In default (pre-commit) mode the audit rewrites and re-stages `index.md` so the index is always current at commit time. In `--check` mode (CI) the audit exits non-zero on drift without writing. A newly-defined functional requirement that has no marker yet produces a warning rather than a block during a 5-commit grace window measured against the product spec file's git history; past the grace window, uncovered requirements block commits. `PDEQ_ALLOW_DRIFT=1` demotes all audit blocks to warnings, with the suppressed conditions named in the report.
+
+Slash commands, command definitions, and hook behavior are covered in their respective sections and command files. The details of the regex grammar, per-language exceptions, grace-period semantics, and audit algorithm live in `engineering/cli/code-mapping.md`. This section defines only the convention at the top level so agents know the rules before reading any code.
 
 ## Slash Commands
 

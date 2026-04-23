@@ -78,7 +78,67 @@ clear why that step comes before the next.
 
 1. **[Step name]** — [What this step does and why it's first/next]
 2. **[Step name]** — [What this step does and what it unlocks]
+
+## Code Map
+
+Authoritative planned code locations for every functional requirement this spec covers.
+Each row has exactly three columns: Slug, Planned location, Status.
+Status vocabulary is fixed: `implemented`, `planned`, or `unimplemented`.
+
+| Slug | Planned location | Status |
+|---|---|---|
+| FR-<feature>-<slug> | path/to/file.ext:line-range | planned |
+| FR-<feature>-<other> | — | unimplemented |
 ```
+
+### Code Map rules
+
+Every platform-specific engineering spec MUST include a `## Code Map` section listing every
+functional requirement (`FR-`) it covers. Non-functional requirements and acceptance
+criteria do not appear here — they are cross-cutting or verified by QA.
+
+- **Slug** column: one `FR-<feature>-<slug>` per row. One slug per row even if the
+  implementation bundles multiple FRs; multi-slug markers are a code concern, not a
+  Code Map concern.
+- **Planned location** column: a relative path from repo root, optionally with a line
+  range (e.g. `scripts/migrate.sh:120-145`). Multiple locations separated by `; `.
+  Use `—` (em-dash) to indicate "no specific location planned yet."
+- **Status** column:
+  - `implemented` — the file exists and contains an inline marker citing this slug.
+  - `planned` — the location is the author's intended home for the implementation;
+    file may not exist yet.
+  - `unimplemented` — the slug is deliberately deferred (e.g., future scope that still
+    lives in the current product spec). The traceability audit exempts these from
+    coverage warnings and blocks.
+- The Code Map is a **living document**: update it whenever you move, split, or merge
+  files during implementation. The audit blocks commits whose Code Map references
+  missing paths or whose `implemented` rows point at files containing no marker for
+  the slug.
+
+### Inline markers
+
+When you implement the code for a slug, add an inline marker at the smallest enclosing
+named unit (function, method, or block) that realizes the requirement. The marker's
+exact syntax depends on the file kind; see the syntax reference in
+`engineering/cli/code-mapping.md` §Marker syntax reference. Canonical forms:
+
+- C-family (`.ts, .js, .go, .swift, .java, .c, .cpp, .rs, …`): `// Implements: FR-<feature>-<slug>`
+- Shell / scripting (`.sh, .py, .rb, .yaml, …`): `# Implements: FR-<feature>-<slug>`
+- SQL: `-- Implements: FR-<feature>-<slug>`
+- HTML / Markdown: `<!-- Implements: FR-<feature>-<slug> -->` (close token on same line)
+- Block-comment only (`.css, .scss`): `/* Implements: FR-<feature>-<slug> */`
+
+Multi-slug: `// Implements: FR-x, FR-y`. The marker must appear on a single source line.
+
+**Anti-patterns to avoid** — the audit cannot detect these without parsing the full
+file; relying on these produces broken traceability:
+
+- Marker at file top when the file contains function definitions (the audit warns but
+  coverage is not counted — move the marker into the implementing unit).
+- Marker inside a block comment that is itself commented out (the audit will still
+  count it; delete commented-out markers rather than nesting them).
+- Slug text embedded in a string literal that happens to resemble a marker (counted
+  as a live marker; rare, but avoid if possible).
 
 ### Other Engineering Docs
 
