@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+#
+# pdeq pre-commit hook.
+#
+# Runs the pdeq pre-commit pipeline: traceability audit (including marker scan
+# + index Code-column rewrite), then decision-log merge. Any pdeq-provided
+# script that is missing is silently skipped, so this hook works on partial
+# installs (e.g., before a feature's script lands).
+#
+# Installed by `scripts/init.sh` via `git config core.hooksPath <path>`.
+#
+# Escape hatches:
+#   PDEQ_ALLOW_DRIFT=1 git commit ...     # Demote all audit blocks to warnings.
+#   PDEQ_SKIP_HOOKS=1 git commit ...      # Skip the entire pdeq hook pipeline.
+#
+# Layered local hooks:
+#   If .git/hooks-local/pre-commit exists and is executable, it runs after
+#   the pdeq pipeline. Non-zero exit from the local hook aborts the commit.
+# Implements: FR-code-mapping-audit-scan
+
+set -e
+
+if [ -n "${PDEQ_SKIP_HOOKS:-}" ]; then
+  exit 0
+fi
+
+REPO=$(git rev-parse --show-toplevel)
+
+# Run pdeq audits in order. Each one is optional — absent scripts skip cleanly.
+if [ -x "$REPO/scripts/audit-traceability.sh" ]; then
+  "$REPO/scripts/audit-traceability.sh"
+fi
+
+if [ -x "$REPO/scripts/merge-decisions.sh" ]; then
+  "$REPO/scripts/merge-decisions.sh"
+fi
+
+# Layered local hook (unchecked-in user extension).
+if [ -x "$REPO/.git/hooks-local/pre-commit" ]; then
+  "$REPO/.git/hooks-local/pre-commit"
+fi

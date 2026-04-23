@@ -45,6 +45,18 @@
       "default": ".pdeq",
       "examples": [".pdeq", "tools/pdeq"]
     },
+    "selfHost": {
+      "type": "boolean",
+      "description": "True when this config belongs to the pdeq repository itself (framework files live at the repo root rather than under .pdeq/). Controls whether the traceability audit scans into framework directories. Consumer projects leave this false.",
+      "default": false
+    },
+    "codeMappingExclude": {
+      "type": "array",
+      "description": "Additional glob patterns (relative to the git root) excluded from the traceability audit's marker scan. Appended to the default exclusion list (node_modules, vendor, dist, build, etc.).",
+      "items": { "type": "string" },
+      "default": [],
+      "examples": [["docs/legacy/**", "scripts/third-party/**"]]
+    },
     "nested": {
       "type": "object",
       "description": "Configuration for nested installs (inside a monorepo package or feature subdirectory). Omit for root-level installs.",

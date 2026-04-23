@@ -40,6 +40,7 @@ OPT_LABEL=""
 OPT_PLATFORMS=""
 OPT_INTERACTIVE=0
 OPT_PDEQ_URL=""
+OPT_SKIP_HOOKS=0
 
 green()  { printf '\033[0;32m✓\033[0m %s\n' "$*"; }
 skip()   { printf '\033[0;33m~\033[0m %s\n' "$*"; }
@@ -58,9 +59,10 @@ while [[ $# -gt 0 ]]; do
     --platforms)   OPT_PLATFORMS="$2";         shift 2 ;;
     --interactive) OPT_INTERACTIVE=1;          shift ;;
     --pdeq-url)    OPT_PDEQ_URL="$2";         shift 2 ;;
+    --skip-hooks)  OPT_SKIP_HOOKS=1;           shift ;;
     -*)
       echo "Unknown flag: $1"
-      echo "Usage: $0 [--code-root <path>] [--specs-root <path>] [--nested <repo-root>] [--label <name>] [--platforms <list>] [--interactive] [--pdeq-url <url>]"
+      echo "Usage: $0 [--code-root <path>] [--specs-root <path>] [--nested <repo-root>] [--label <name>] [--platforms <list>] [--interactive] [--pdeq-url <url>] [--skip-hooks]"
       exit 1
       ;;
     *)
@@ -297,64 +299,122 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Step 9: Generate pdeq.json when non-default config is needed
+# Step 9: Generate pdeq.json (always — pdeqVersion must be recorded)
 # ---------------------------------------------------------------------------
+# Implements: FR-migrations-version-field
 PDEQ_CONFIG="$INSTALL_DIR/pdeq.json"
-NEEDS_CONFIG=0
-[[ "$OPT_CODE_ROOT" != "." ]] && NEEDS_CONFIG=1
-[[ "$OPT_SPECS_ROOT" != "." ]] && NEEDS_CONFIG=1
-[[ -n "$OPT_PLATFORMS" ]] && NEEDS_CONFIG=1
-[[ -n "$OPT_NESTED_REPO_ROOT" ]] && NEEDS_CONFIG=1
 
-if [[ "$NEEDS_CONFIG" == "1" ]]; then
-  if [[ -f "$PDEQ_CONFIG" ]]; then
-    skip "pdeq.json already exists — update manually to change paths"
-    ((SKIPPED++))
-  else
-    # Build platforms JSON array
-    platforms_json="[]"
-    if [[ -n "$OPT_PLATFORMS" ]]; then
-      IFS=',' read -ra PLAT_ARRAY <<< "$OPT_PLATFORMS"
-      platforms_json="["
-      first=1
-      for p in "${PLAT_ARRAY[@]}"; do
-        p="${p// /}"  # trim whitespace
-        if [[ "$first" == "1" ]]; then
-          platforms_json+="\"$p\""
-          first=0
-        else
-          platforms_json+=", \"$p\""
-        fi
-      done
-      platforms_json+="]"
-    fi
+# Resolve pdeqVersion from the authoritative VERSION file.
+# Consumer install reads .pdeq/VERSION; pdeq self-host reads ./VERSION.
+PDEQ_VERSION=""
+if [[ -f "$PDEQ_PATH/VERSION" ]]; then
+  PDEQ_VERSION="$(head -n 1 "$PDEQ_PATH/VERSION" | tr -d '[:space:]')"
+elif [[ -f "$GIT_ROOT/VERSION" ]]; then
+  PDEQ_VERSION="$(head -n 1 "$GIT_ROOT/VERSION" | tr -d '[:space:]')"
+fi
 
-    # Build optional nested block
-    nested_block=""
-    if [[ -n "$OPT_NESTED_REPO_ROOT" ]]; then
-      if [[ -n "$OPT_LABEL" ]]; then
-        nested_block=",
+if [[ -f "$PDEQ_CONFIG" ]]; then
+  skip "pdeq.json already exists — update manually to change paths"
+  ((SKIPPED++))
+else
+  # Build platforms JSON array
+  platforms_json="[]"
+  if [[ -n "$OPT_PLATFORMS" ]]; then
+    IFS=',' read -ra PLAT_ARRAY <<< "$OPT_PLATFORMS"
+    platforms_json="["
+    first=1
+    for p in "${PLAT_ARRAY[@]}"; do
+      p="${p// /}"
+      if [[ "$first" == "1" ]]; then
+        platforms_json+="\"$p\""
+        first=0
+      else
+        platforms_json+=", \"$p\""
+      fi
+    done
+    platforms_json+="]"
+  fi
+
+  # Build optional nested block
+  nested_block=""
+  if [[ -n "$OPT_NESTED_REPO_ROOT" ]]; then
+    if [[ -n "$OPT_LABEL" ]]; then
+      nested_block=",
   \"nested\": {
     \"repoRoot\": \"$OPT_NESTED_REPO_ROOT\",
     \"label\": \"$OPT_LABEL\"
   }"
-      else
-        nested_block=",
+    else
+      nested_block=",
   \"nested\": {
     \"repoRoot\": \"$OPT_NESTED_REPO_ROOT\"
   }"
-      fi
     fi
+  fi
 
-    cat > "$PDEQ_CONFIG" << JSONEOF
-{
+  version_line=""
+  if [[ -n "$PDEQ_VERSION" ]]; then
+    version_line="
+  \"pdeqVersion\": \"$PDEQ_VERSION\","
+  fi
+
+  cat > "$PDEQ_CONFIG" << JSONEOF
+{$version_line
   "specsRoot": "$OPT_SPECS_ROOT",
   "codeRoot": "$OPT_CODE_ROOT",
   "platforms": $platforms_json$nested_block
 }
 JSONEOF
-    green "Generated pdeq.json"
-    ((CREATED++))
+  green "Generated pdeq.json${PDEQ_VERSION:+ (pdeqVersion: $PDEQ_VERSION)}"
+  ((CREATED++))
+fi
+
+# ---------------------------------------------------------------------------
+# Step 10: Install git hooks via core.hooksPath (unless --skip-hooks)
+# ---------------------------------------------------------------------------
+# Points core.hooksPath at the tracked hook directory inside the pdeq install
+# so the audit + merge-decisions + migrations-gate scripts run automatically
+# at commit time. Tracked dir means adding new hooks is a code review, not a
+# per-developer reinstall.
+#
+# See root CLAUDE.md §Requirement ↔ Code Mapping for the rationale on why
+# core.hooksPath is preferred over symlinking into .git/hooks/.
+# Implements: FR-code-mapping-audit-scan
+
+if [[ "$OPT_SKIP_HOOKS" == "1" ]]; then
+  skip "Skipping git hook install (--skip-hooks)"
+  ((SKIPPED++))
+else
+  # Hooks live at <pdeq_root>/hooks for the pdeq self-host, or inside the
+  # submodule at .pdeq/hooks for consumer installs. Resolve relative to
+  # GIT_ROOT so the config entry survives cd'ing around.
+  HOOKS_DIR_ABS="$PDEQ_PATH/hooks"
+  if [[ ! -d "$HOOKS_DIR_ABS" ]]; then
+    # Self-host fallback: pdeq's own repo keeps hooks at <root>/hooks
+    HOOKS_DIR_ABS="$GIT_ROOT/hooks"
+  fi
+
+  if [[ -d "$HOOKS_DIR_ABS" ]]; then
+    # Express the path relative to GIT_ROOT so git stores it portably.
+    HOOKS_REL="${HOOKS_DIR_ABS#$GIT_ROOT/}"
+    CURRENT_HOOKS_PATH="$(cd "$GIT_ROOT" && git config --get core.hooksPath 2>/dev/null || true)"
+
+    if [[ "$CURRENT_HOOKS_PATH" == "$HOOKS_REL" ]]; then
+      skip "Git hooks already wired to $HOOKS_REL"
+      ((SKIPPED++))
+    elif [[ -n "$CURRENT_HOOKS_PATH" && "$CURRENT_HOOKS_PATH" != "$HOOKS_REL" ]]; then
+      skip "core.hooksPath already set to '$CURRENT_HOOKS_PATH' — not overwriting. Re-run with --skip-hooks, or unset manually to switch."
+      ((SKIPPED++))
+    else
+      (cd "$GIT_ROOT" && git config core.hooksPath "$HOOKS_REL")
+      green "Installed pdeq git hooks at $HOOKS_REL"
+      info "  Hooks wired: pre-commit (traceability + decisions merge), commit-msg (migrations gate)"
+      info "  Override for a single commit: PDEQ_SKIP_HOOKS=1 git commit ..."
+      ((CREATED++))
+    fi
+  else
+    skip "No hooks/ directory found in pdeq install — skipping hook install"
+    ((SKIPPED++))
   fi
 fi
 
@@ -366,12 +426,8 @@ info "PDEQ init complete — Created: $CREATED  Skipped: $SKIPPED"
 printf '\n'
 info "Next steps:"
 info "  1. Review CLAUDE.md and add project-specific instructions"
-if [[ "$NEEDS_CONFIG" == "1" ]]; then
-  info "  2. Review pdeq.json — verify specsRoot, codeRoot, and platforms"
-  info "  3. Run /bootstrap to generate draft specs from your existing code"
-  info "  4. Run /kickoff to start your first feature from scratch"
-else
-  info "  2. Run /kickoff to start your first feature"
-fi
+info "  2. Review pdeq.json — verify pdeqVersion, specsRoot, codeRoot, and platforms"
+info "  3. Run /bootstrap to generate draft specs from your existing code,"
+info "     or /kickoff to start your first feature from scratch"
 info "  To update PDEQ later: git submodule update --remote $PDEQ_DIR"
 printf '\n'

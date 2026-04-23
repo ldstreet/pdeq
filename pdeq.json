@@ -1,0 +1,7 @@
+{
+  "pdeqVersion": "0.2.0",
+  "specsRoot": ".",
+  "codeRoot": ".",
+  "platforms": ["cli"],
+  "selfHost": true
+}

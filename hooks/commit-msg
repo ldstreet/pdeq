@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+#
+# pdeq commit-msg hook.
+#
+# Runs the migrations breaking-change gate. The message file path is passed
+# as $1 so the gate can read the finalized commit message (including the
+# `pdeq-migration: none-required` trailer when present).
+#
+# Installed by `scripts/init.sh` via `git config core.hooksPath <path>`.
+#
+# Escape hatches:
+#   PDEQ_SKIP_HOOKS=1 git commit ...      # Skip pdeq hook pipeline.
+#
+# Layered local hooks:
+#   If .git/hooks-local/commit-msg exists and is executable, it runs after
+#   the pdeq gate. Non-zero exit aborts the commit.
+
+set -e
+
+if [ -n "${PDEQ_SKIP_HOOKS:-}" ]; then
+  exit 0
+fi
+
+REPO=$(git rev-parse --show-toplevel)
+MSG_FILE="$1"
+
+if [ -x "$REPO/scripts/audit-migrations.sh" ]; then
+  "$REPO/scripts/audit-migrations.sh" "$MSG_FILE"
+fi
+
+if [ -x "$REPO/.git/hooks-local/commit-msg" ]; then
+  "$REPO/.git/hooks-local/commit-msg" "$MSG_FILE"
+fi

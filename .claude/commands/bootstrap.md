@@ -32,6 +32,37 @@ Ask the user to confirm before proceeding.
 
 ---
 
+## Step 0.5: Offer Git Hook Install
+
+Pdeq's pre-commit audit and commit-msg migrations gate only fire if
+`core.hooksPath` points at the pdeq hooks directory. Check current state
+and offer to wire hooks now so drift is caught from the next commit onward.
+
+1. Run `git config --get core.hooksPath` (at the git root).
+2. Determine the expected hooks path:
+   - Consumer install: `.pdeq/hooks` (relative to git root)
+   - Self-host: `hooks` (relative to git root)
+3. Compare:
+   - If the current value equals the expected path: print
+     `✓ pdeq git hooks already installed at <path>` and continue.
+   - If `core.hooksPath` is unset: prompt the user:
+     > Install pdeq git hooks? They run the traceability audit, merge
+     > decisions, and enforce the migrations gate automatically at commit
+     > time. You can skip per-commit with `PDEQ_SKIP_HOOKS=1 git commit …`.
+     > [Y/n]
+     On `Y` (or empty), run `git config core.hooksPath <expected>` and
+     print a confirmation. On `n`, continue without installing and print
+     a reminder that the audit can still be invoked manually.
+   - If `core.hooksPath` is set to some *other* path: print
+     `⚠ core.hooksPath is currently '<value>' — not changing. Move or
+     chain your existing hook config to use pdeq hooks if desired.` and
+     continue.
+
+This step is idempotent: re-running bootstrap on an already-wired repo
+does nothing.
+
+---
+
 ## Step 1: Check for Existing Analysis
 
 Check whether `{specsRoot}/bootstrap-analysis.md` exists.
