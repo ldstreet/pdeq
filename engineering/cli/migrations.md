@@ -645,8 +645,8 @@ that do not yet exist (the /migrate command file and audit-migrations.sh gate);
 | FR-migrations-dry-run | .claude/commands/migrate.md | planned |
 | FR-migrations-idempotent | migrations/TEMPLATE.md | implemented |
 | FR-migrations-scoped-writes | scripts/migrate.sh | implemented |
-| FR-migrations-breaking-gate | scripts/audit-migrations.sh | planned |
-| FR-migrations-no-false-positive | scripts/audit-migrations.sh | planned |
+| FR-migrations-breaking-gate | scripts/audit-migrations.sh | implemented |
+| FR-migrations-no-false-positive | scripts/audit-migrations.sh | implemented |
 | FR-migrations-lineage-integrity | scripts/migrate.sh | implemented |
 | FR-migrations-bootstrap-chain | — | unimplemented |
 | FR-migrations-self-migration | .claude/commands/migrate.md | planned |
