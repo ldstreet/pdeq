@@ -183,7 +183,7 @@ scan_markers() {
   if command -v rg >/dev/null 2>&1; then
     local rg_args=()
     while IFS= read -r a; do rg_args+=("$a"); done < <(build_exclude_args_rg)
-    rg --pcre2 --with-filename --line-number --no-heading --sort path \
+    rg --pcre2 --hidden --with-filename --line-number --no-heading --sort path \
        "${rg_args[@]}" "$MARKER_REGEX" "$ROOT" 2>/dev/null > "$hits_file" || true
   else
     warnf "ripgrep not found; using grep fallback — audit may be slower than 2s target"
