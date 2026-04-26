@@ -1,5 +1,5 @@
 ---
-product-hash: 09811b5a830a37c04a8152665d9577ffcea136a6094e6deed4f17063a20d4d7e
+product-hash: ed6db9bb10905f9d40e8570d9d3ca7fceb6422dccb9c62c9ff294c196ad45b53
 product-slugs: [AC-code-mapping-acknowledged-unimplemented, AC-code-mapping-audit-speed, AC-code-mapping-deterministic-output, AC-code-mapping-escape-hatch, AC-code-mapping-index-drops-removed, AC-code-mapping-index-reflects-markers, AC-code-mapping-marker-scope-enforced, AC-code-mapping-marker-syntax-per-type, AC-code-mapping-multi-slug-counted, AC-code-mapping-near-match-rejected, AC-code-mapping-orphan-marker-rejected, AC-code-mapping-planned-paths-living, AC-code-mapping-retirement-blocks, AC-code-mapping-stale-planned-path-rejected, AC-code-mapping-uncovered-blocks, AC-code-mapping-uncovered-warns, FR-code-mapping-acknowledged-unimplemented, FR-code-mapping-audit-coverage, FR-code-mapping-audit-coverage-blocks, FR-code-mapping-audit-coverage-grace, FR-code-mapping-audit-escape-hatch, FR-code-mapping-audit-scan, FR-code-mapping-audit-validates-path, FR-code-mapping-audit-validates-slug, FR-code-mapping-index-code-locations, FR-code-mapping-index-populated, FR-code-mapping-index-removes-stale, FR-code-mapping-marker-language, FR-code-mapping-marker-multi, FR-code-mapping-marker-presence, FR-code-mapping-marker-retirement-blocks, FR-code-mapping-marker-scope, FR-code-mapping-marker-slug-reference, FR-code-mapping-planned-paths, FR-code-mapping-planned-paths-living, FR-code-mapping-planned-paths-per-platform, NFR-code-mapping-audit-speed, NFR-code-mapping-determinism, NFR-code-mapping-precision, NFR-code-mapping-review-cost]
 ---
 # Requirement ↔ Code Mapping — CLI Technical Spec
@@ -59,15 +59,25 @@ Satisfies `FR-code-mapping-marker-language`, `FR-code-mapping-marker-presence`, 
 
 ### Scope rule — "smallest enclosing named unit"
 
-`FR-code-mapping-marker-scope` requires that a marker sit on or immediately above the smallest enclosing named unit that implements the requirement. The audit enforces a weaker proxy via the `check_scope_rule` function (phase 5b, between marker scan and orphan check): **a marker is rejected if it appears at the top of a file (before any non-comment, non-blank line) in a file whose extension indicates a function-like definition is possible.** Detection of "function-like definition is possible" is by file kind:
+`FR-code-mapping-marker-scope` requires that a marker sit on or immediately above the smallest enclosing named unit that implements the requirement. The audit enforces a weaker proxy via the `check_scope_rule` function (phase 5b, between marker scan and orphan check): **a marker is flagged when the file contains at least one named-unit declaration AND the marker line is more than one line before the first such declaration.** Position is judged structurally — against the first declaration's line — not against an absolute line count.
+
+Detection of "function-like definition is possible" is by file kind:
 
 - C-family, Python, Ruby, Swift, Go, Rust, shell (when the shell script contains at least one `function NAME` or `NAME() {` declaration) — scope rule applies.
 - Markdown, HTML, YAML, JSON — scope rule does not apply (no functions).
 - Shell scripts with only top-level statements — scope rule does not apply (detected by scanning the whole file for function declarations; zero found = exempt).
 
-When the rule applies and a marker appears before the first non-comment/non-blank line, it is flagged (warning at phase 5b, not a block, because structural detection is imperfect). Flagged markers do not count toward coverage. Non-flagged markers count normally.
+Algorithm (per marker, per applicable file):
 
-This is a deliberately loose check. Precision on structural placement is impossible in a regex scanner; the goal is to catch "agent pasted `// Implements:` at file top and left it there," not to parse AST. Satisfies `AC-code-mapping-marker-scope-enforced`.
+1. Find `first_decl_line`: the lowest line number in the file matching the named-unit regex (`function`, `def`, `func`, `class`, `export function`, JSX/TSX component declarations, etc.).
+2. If no declaration matched, the file is exempt — no warning regardless of marker line.
+3. If `marker_line >= first_decl_line`, the marker sits at or below the first named unit (i.e., inside its body or below a later one). No warning.
+4. If `marker_line == first_decl_line - 1`, the marker is immediately above the first named unit — the canonical correct placement. No warning.
+5. Otherwise (`marker_line < first_decl_line - 1`), the marker is at file-top: it precedes every named unit in the file and is not paired with the first one. Warn (phase 5b is not a block, because structural detection is imperfect). Flagged markers do not count toward coverage. Non-flagged markers count normally.
+
+The earlier "marker line ≤ 5 = file top" heuristic produced false positives on short components whose first declaration started on line 2 or 3 (a marker on line 3 that is semantically inside the function body would trip the warn). Anchoring against `first_decl_line` instead of an absolute line number eliminates that false-positive class without weakening the catch for "agent pasted `// Implements:` at file top and never moved it."
+
+This is still a deliberately loose check. Precision on structural placement is impossible in a regex scanner without language-aware parsing; the goal is to catch the obvious file-top antipattern, not to validate every structural placement. Satisfies `AC-code-mapping-marker-scope-enforced`.
 
 ### Code Map section — format and parse contract
 
@@ -94,7 +104,7 @@ The extended `scripts/audit-traceability.sh` runs these phases in order. Phases 
 3. Compare sets → report orphan references (existing).
 4. Validate `index.md` file paths exist (existing).
 5. **Marker scan**: ripgrep the tree (excluding paths in §Exclusions) for `^.*(<comment-open-alternation>) *Implements: *(<slug-grammar>)( *, *<slug-grammar>)* *(<comment-close-alternation>)`. For each match: record `(slug, file, line)` tuples. Reject any marker citing a slug not in the product-defined set → `AC-code-mapping-orphan-marker-rejected`.
-   - **Phase 5b (`check_scope_rule`)**: per §Scope rule, warn when a counted marker appears at file top in a function-capable file. Flagged markers do not count toward coverage. Warn only, no block. → `AC-code-mapping-marker-scope-enforced`.
+   - **Phase 5b (`check_scope_rule`)**: per §Scope rule, for each counted marker, locate the first named-unit declaration line in the same file. Warn iff the marker line is more than one line before that declaration line (i.e., not on or immediately above any named unit). Flagged markers do not count toward coverage. Warn only, no block. → `AC-code-mapping-marker-scope-enforced`.
 6. **Retirement check**: for each marker in the tree, if the cited slug is in the current product-defined set: OK. If not: block, naming the retired slug and all files that still cite it → `AC-code-mapping-retirement-blocks`. (This is a tightened form of phase 5 — it runs even when no new markers were added in the current commit.)
 7. **Code Map validation**: for each platform engineering spec, parse Code Map rows. Per-row checks:
    - For each row with `Status: implemented`: verify every `planned_location` file exists AND a marker citing the slug exists somewhere in the tree. Either a missing file or the absence of a marker is a block → `AC-code-mapping-stale-planned-path-rejected`, plus the implemented-but-no-marker check that catches "author renamed the code but forgot to update the Code Map."
@@ -179,7 +189,7 @@ Index header gains one column: `Code`. Existing rows gain an empty last cell on 
 | Function | Purpose |
 |---|---|
 | `scan_markers` | Runs the ripgrep-or-grep marker scan and emits `(slug\tfile\tline)` tuples on stdout. |
-| `check_scope_rule` | Reads `scan_markers` output, flags file-top markers in function-capable files. Warning only. |
+| `check_scope_rule` | Reads `scan_markers` output. For each marker in a function-capable file, finds the first named-unit declaration line and warns iff the marker is more than one line above it. Warning only. |
 | `parse_code_map <engineering-spec>` | Emits `(slug\tpath\tstatus)` tuples for one engineering spec's Code Map section. |
 | `check_orphan_markers` | Reads `scan_markers` output, compares against `$PRODUCT_SLUGS`, reports orphans. |
 | `check_retirement` | Subset of `check_orphan_markers` specifically for markers whose slug was present in a prior product spec version but not the current. |
@@ -256,7 +266,7 @@ Failure modes and responses:
 | FR uncovered past grace | 1 | `✗ <slug> defined but has no marker (grace expired at <delta>/<threshold>)` | Yes (unless override) |
 | Index rewrite diff — default mode | 0 | Rewrites in place, re-stages, appends `pdeq-audit: index-code-column-updated` trailer. | No |
 | Index rewrite diff — `--check` mode (CI) | 1 | `index.md Code column out of date — run ./scripts/audit-traceability.sh locally and commit the result` | Yes |
-| Marker at file top (scope rule) | 0 (warn) | `⚠ marker at file top in function-capable file: <file>:<line> — move inside implementing unit` | No |
+| Marker at file top (scope rule) | 0 (warn) | `⚠ marker above first named unit at <file>:<line> (first declaration at line <D>) — move inside or immediately above the implementing unit` | No |
 | Malformed Code Map | 1 | `engineering/<platform>/<feature>.md Code Map row <n> malformed: <reason>` | Yes |
 | Ripgrep missing, grep fallback slow | 0 (warn) | `ripgrep not found; using grep fallback — audit may be slower than 2s target` | No |
 
@@ -368,7 +378,7 @@ Authoritative planned code locations for every FR defined in `product/code-mappi
 |---|---|---|
 | FR-code-mapping-marker-presence | scripts/audit-traceability.sh:scan_markers | planned |
 | FR-code-mapping-marker-multi | scripts/audit-traceability.sh:scan_markers | planned |
-| FR-code-mapping-marker-scope | scripts/audit-traceability.sh:check_scope_rule | planned |
+| FR-code-mapping-marker-scope | scripts/audit-traceability.sh:check_scope_rule | implemented |
 | FR-code-mapping-marker-language | scripts/audit-traceability.sh:SYNTAX_TABLE | planned |
 | FR-code-mapping-marker-slug-reference | scripts/audit-traceability.sh:check_orphan_markers | planned |
 | FR-code-mapping-marker-retirement-blocks | scripts/audit-traceability.sh:check_retirement | planned |

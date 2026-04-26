@@ -19,7 +19,6 @@
 #   PDEQ_CODE_MAPPING_SKIP_INDEX_REWRITE=1  Short-circuit phase 9 entirely.
 #
 # Can be run standalone (./scripts/audit-traceability.sh) or as a git pre-commit hook.
-# Implements: FR-code-mapping-audit-scan
 
 set -euo pipefail
 
@@ -462,16 +461,29 @@ echo ""
 
 echo "[5b/9] Marker scope check..."
 # Implements: FR-code-mapping-marker-scope, AC-code-mapping-marker-scope-enforced
+# A marker is flagged iff the file has at least one named-unit declaration AND
+# the marker is more than one line above the first such declaration. A marker
+# at or below `first_decl_line`, or exactly on `first_decl_line - 1`, is
+# correctly scoped (sits inside or immediately above an implementing unit) and
+# is NOT flagged regardless of its absolute line number. This eliminates the
+# false-positive class where a marker on, e.g., line 3 of a short component
+# whose function declaration begins on line 1 was warned on by the prior
+# `line <= 5` heuristic. See engineering/cli/code-mapping.md §Scope rule.
+DECL_REGEX='^(export[[:space:]]+)?(function[[:space:]]+|async[[:space:]]+function|def[[:space:]]+|func[[:space:]]+|class[[:space:]]+)|^[a-zA-Z_][a-zA-Z0-9_]*[[:space:]]*\('
 while IFS=$'\t' read -r slug file line; do
   [ -z "$slug" ] && continue
   case "${file##*.}" in
     md|html|xml|svg|yaml|yml|toml) continue ;;  # No function concept.
   esac
-  # If marker is within first 5 lines of file AND file contains function-like declarations, warn.
-  if [ "$line" -le 5 ]; then
-    if grep -qE '^(export\s+)?(function\s+|async\s+function|def\s+|func\s+|class\s+|class[[:space:]]+[A-Z])|^[a-zA-Z_][a-zA-Z0-9_]*[[:space:]]*\(' "$ROOT/$file" 2>/dev/null; then
-      warnf "marker at file top in function-capable file: $file:$line — consider moving inside the implementing unit"
-    fi
+  # `|| true` because set -e + pipefail abort the script when grep finds no
+  # match (exit 1). Empty `first_decl_line` is the documented "no declaration"
+  # branch — handled below.
+  first_decl_line=$(grep -nE "$DECL_REGEX" "$ROOT/$file" 2>/dev/null | head -n 1 | cut -d: -f1 || true)
+  # No declaration in the file → scope rule does not apply (top-level-only file).
+  [ -z "$first_decl_line" ] && continue
+  # Warn iff marker is more than one line above the first declaration.
+  if [ "$((line + 1))" -lt "$first_decl_line" ]; then
+    warnf "marker above first named unit at $file:$line (first declaration at line $first_decl_line) — move inside or immediately above the implementing unit"
   fi
 done < "$markers_tsv"
 echo ""

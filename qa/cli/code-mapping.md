@@ -1,5 +1,5 @@
 ---
-product-hash: 09811b5a830a37c04a8152665d9577ffcea136a6094e6deed4f17063a20d4d7e
+product-hash: ed6db9bb10905f9d40e8570d9d3ca7fceb6422dccb9c62c9ff294c196ad45b53
 product-slugs: [AC-code-mapping-acknowledged-unimplemented, AC-code-mapping-audit-speed, AC-code-mapping-deterministic-output, AC-code-mapping-escape-hatch, AC-code-mapping-index-drops-removed, AC-code-mapping-index-reflects-markers, AC-code-mapping-marker-scope-enforced, AC-code-mapping-marker-syntax-per-type, AC-code-mapping-multi-slug-counted, AC-code-mapping-near-match-rejected, AC-code-mapping-orphan-marker-rejected, AC-code-mapping-planned-paths-living, AC-code-mapping-retirement-blocks, AC-code-mapping-stale-planned-path-rejected, AC-code-mapping-uncovered-blocks, AC-code-mapping-uncovered-warns, FR-code-mapping-acknowledged-unimplemented, FR-code-mapping-audit-coverage, FR-code-mapping-audit-coverage-blocks, FR-code-mapping-audit-coverage-grace, FR-code-mapping-audit-escape-hatch, FR-code-mapping-audit-scan, FR-code-mapping-audit-validates-path, FR-code-mapping-audit-validates-slug, FR-code-mapping-index-code-locations, FR-code-mapping-index-populated, FR-code-mapping-index-removes-stale, FR-code-mapping-marker-language, FR-code-mapping-marker-multi, FR-code-mapping-marker-presence, FR-code-mapping-marker-retirement-blocks, FR-code-mapping-marker-scope, FR-code-mapping-marker-slug-reference, FR-code-mapping-planned-paths, FR-code-mapping-planned-paths-living, FR-code-mapping-planned-paths-per-platform, NFR-code-mapping-audit-speed, NFR-code-mapping-determinism, NFR-code-mapping-precision, NFR-code-mapping-review-cost]
 ---
 # Requirement ↔ Code Mapping — CLI Test Plan
@@ -64,6 +64,9 @@ All test cases in this plan are `[auto]` — the feature has no judgment-based b
 | `extension-exclude/` | `pdeq.json:codeMappingExclude` lists `legacy/**`. | `legacy/` contains an orphan marker that should be ignored. |
 | `single-line-marker/` | Marker with a very long slug list split across two `//` comment lines. | Two separate `// Implements:` comments on consecutive lines, neither of which is a complete multi-slug marker on its own. Used by `TC-code-mapping-single-line-marker`. |
 | `scope-on-function/` | Marker placed immediately above a function declaration (happy-path scope). | `.ts` file with `// Implements: FR-ex-one` on line 11, `export function doThing() {…}` on line 12. No other markers. |
+| `scope-inside-short-body/` | Function declaration starts on line 1 (file has no preceding imports), marker sits inside the body on line 3. | `.tsx` file: line 1 `export function DiffLoadingState() {`, line 2 blank, line 3 `  // Implements: FR-ex-one`, line 4 `  return <div/>;`, line 5 `}`. No other markers. Verifies the audit does not warn just because the marker has a low absolute line number — it sits at or below `first_decl_line`, so position is correct. |
+| `scope-no-decl-warns/` | Function-capable file with marker but no named-unit declaration anywhere. | `.ts` file: line 1 `// Implements: FR-ex-one`, line 2 `console.log("hello");` — top-level statement only, no `function`/`class`/component declaration. The scope rule does not apply (no declaration found = exempt). Used to pin the "no declaration → no warn" branch. |
+| `scope-above-first-decl-warns/` | Marker on line 1, first declaration on line 5 — gap > 1, classic file-top antipattern. | `.ts` file: line 1 `// Implements: FR-ex-one`, lines 2–4 `import …` statements, line 5 `export function foo() { return 1; }`. Marker is more than one line above the first declaration → warn. |
 | `implemented-status-no-marker/` | Code Map row marks `FR-ex-one` as `implemented` at `src/main.ts`, but the file has no marker. | Tests the implemented-without-marker drift case. |
 | `grace-at-4/`, `grace-at-6/` | Git fixtures for `TC-code-mapping-grace-default-5`. | Identical setup except the product spec file has 4 vs 6 commits since `FR-ex-one` was added. |
 
@@ -75,7 +78,7 @@ All test cases in this plan are `[auto]` — the feature has no judgment-based b
 |---|---|---|
 | `FR-code-mapping-marker-presence` | `TC-code-mapping-marker-matches`, `TC-code-mapping-scan-finds-markers` | Not started |
 | `FR-code-mapping-marker-multi` | `TC-code-mapping-multi-slug` | Not started |
-| `FR-code-mapping-marker-scope` | `TC-code-mapping-scope-flagged`, `TC-code-mapping-scope-on-function-passes` | Not started |
+| `FR-code-mapping-marker-scope` | `TC-code-mapping-scope-flagged`, `TC-code-mapping-scope-on-function-passes`, `TC-code-mapping-scope-inside-short-body`, `TC-code-mapping-scope-above-first-decl-warns`, `TC-code-mapping-scope-no-decl-no-warn` | Not started |
 | `FR-code-mapping-marker-language` | `TC-code-mapping-syntax-table`, `TC-code-mapping-close-token-required` | Not started |
 | `FR-code-mapping-marker-slug-reference` | `TC-code-mapping-orphan-blocks` | Not started |
 | `FR-code-mapping-marker-retirement-blocks` | `TC-code-mapping-retirement-blocks` | Not started |
@@ -103,7 +106,7 @@ All test cases in this plan are `[auto]` — the feature has no judgment-based b
 | `AC-code-mapping-uncovered-blocks` | `TC-code-mapping-grace-expires` | Not started |
 | `AC-code-mapping-acknowledged-unimplemented` | `TC-code-mapping-unimplemented-exempt` | Not started |
 | `AC-code-mapping-multi-slug-counted` | `TC-code-mapping-multi-slug` | Not started |
-| `AC-code-mapping-marker-scope-enforced` | `TC-code-mapping-scope-flagged` | Not started |
+| `AC-code-mapping-marker-scope-enforced` | `TC-code-mapping-scope-flagged`, `TC-code-mapping-scope-inside-short-body`, `TC-code-mapping-scope-above-first-decl-warns`, `TC-code-mapping-scope-no-decl-no-warn` | Not started |
 | `AC-code-mapping-marker-syntax-per-type` | `TC-code-mapping-syntax-table`, `TC-code-mapping-close-token-required` | Not started |
 | `AC-code-mapping-planned-paths-living` | `TC-code-mapping-stale-path-blocks` | Not started |
 | `AC-code-mapping-index-reflects-markers` | `TC-code-mapping-index-populated` | Not started |
@@ -232,6 +235,30 @@ Probes the core marker-detection logic in isolation from the rest of the audit.
 - **Steps**:
   1. Run the audit.
 - **Expected Result**: Exit 0. No scope warning. `FR-ex-one` Code column is populated.
+
+#### Marker inside short function body does not warn `TC-code-mapping-scope-inside-short-body`
+- **Type**: Integration
+- **Covers**: `FR-code-mapping-marker-scope`, `AC-code-mapping-marker-scope-enforced`
+- **Fixture**: new `scope-inside-short-body/` — `.tsx` file with `export function DiffLoadingState() {` on line 1 and `// Implements: FR-ex-one` on line 3 (inside the function body). No other markers. Pins the false-positive class fixed by the first-declaration-line algorithm: a marker on a low absolute line number that sits inside an implementing unit must not be flagged.
+- **Steps**:
+  1. Run the audit.
+- **Expected Result**: Exit 0. Stderr does NOT contain `marker above first named unit` or any equivalent scope-warning substring. `FR-ex-one` Code column is populated with the marker's line.
+
+#### Marker above first declaration warns `TC-code-mapping-scope-above-first-decl-warns`
+- **Type**: Integration
+- **Covers**: `FR-code-mapping-marker-scope`, `AC-code-mapping-marker-scope-enforced`
+- **Fixture**: new `scope-above-first-decl-warns/` — `.ts` file with `// Implements: FR-ex-one` on line 1, three `import` lines on 2–4, and the first named-unit declaration on line 5. Gap from marker to first declaration is 4 (>1), so the marker precedes every named unit and is not paired with the first one.
+- **Steps**:
+  1. Run the audit (git fixture so grace covers the FR — failure here must come from scope, not coverage).
+- **Expected Result**: Exit 0 (warn only). Stderr contains a scope-warning line citing `<file>:1` and the discovered first declaration line. The flagged marker is not counted toward coverage; `FR-ex-one` is treated as uncovered-within-grace.
+
+#### Function-capable file with no declaration does not warn `TC-code-mapping-scope-no-decl-no-warn`
+- **Type**: Integration
+- **Covers**: `FR-code-mapping-marker-scope`, `AC-code-mapping-marker-scope-enforced`
+- **Fixture**: new `scope-no-decl-warns/` — `.ts` file with `// Implements: FR-ex-one` on line 1 and only top-level statements (no `function`, `class`, or component declaration anywhere in the file). Verifies the "no declaration found = exempt" branch.
+- **Steps**:
+  1. Run the audit.
+- **Expected Result**: Exit 0. Stderr does NOT contain a scope warning. `FR-ex-one` Code column is populated.
 
 ### Code Map (phase 7)
 
