@@ -17,7 +17,7 @@ This file maps every requirement slug to all files that define or reference it. 
 ## Index
 
 | Slug | Type | Defined In | Referenced In | Code |
-|------|------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|------|------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | FR-migrations-version-field | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, pdeq.schema.json, VERSION | scripts/init.sh:304 |
 | FR-migrations-version-readable | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:82, scripts/migrate.sh:95 |
 | FR-migrations-absent-version | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | scripts/migrate.sh:82 |
@@ -198,3 +198,18 @@ This file maps every requirement slug to all files that define or reference it. 
 | TC-code-mapping-skip-index-rewrite | TC | qa/cli/code-mapping.md |  |  |
 | TC-code-mapping-grace-default-5 | TC | qa/cli/code-mapping.md |  |  |
 | TC-code-mapping-implemented-status-no-marker | TC | qa/cli/code-mapping.md |  |  |
+| FR-visualize-command | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
+| FR-visualize-input-design-spec | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
+| FR-visualize-single-file | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
+| FR-visualize-browser-viewable | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
+| FR-visualize-auto-open | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
+| FR-visualize-output-path | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
+| FR-visualize-gitignored | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
+| FR-visualize-regenerable | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
+| FR-visualize-single-mode | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
+| FR-visualize-platform-scope | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
+| AC-visualize-renders | AC | product/visualize.md |  |  |
+| AC-visualize-gitignored | AC | product/visualize.md |  |  |
+| AC-visualize-self-contained | AC | product/visualize.md |  |  |
+| AC-visualize-missing-spec | AC | product/visualize.md |  |  |
+| AC-visualize-rerun-overwrites | AC | product/visualize.md |  |  |

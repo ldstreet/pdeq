@@ -3,3 +3,6 @@ decisions-pending.md
 
 # Fiberplane local issue tracking
 .fp/
+
+# /visualize throwaway HTML previews
+.pdeq/viz/
