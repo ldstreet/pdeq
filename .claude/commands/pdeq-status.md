@@ -62,4 +62,4 @@ Features with roadmap entries but no product spec yet (pre-kickoff vision):
 [Output from audit-traceability.sh]
 ```
 
-If there are no features yet, just say the project is empty and ready for its first `/kickoff`.
+If there are no features yet, just say the project is empty and ready for its first `/pdeq-kickoff`.

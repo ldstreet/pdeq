@@ -161,5 +161,5 @@ Next steps:
 3. Run ./scripts/audit-traceability.sh to check index integrity
 4. Run ./scripts/audit-lanes.sh to check for lane violations
 5. Commit the generated specs when you're satisfied
-6. Run /kickoff to design and implement any of these features end-to-end
+6. Run /pdeq-kickoff to design and implement any of these features end-to-end
 ```

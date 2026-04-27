@@ -1,5 +1,5 @@
 <!-- Implements: FR-migrations-explicit-run, FR-migrations-ordered-application, FR-migrations-order-within, FR-migrations-dry-run, FR-migrations-failure-report, FR-migrations-self-migration -->
-# Migrate: $ARGUMENTS
+# Pdeq Migrate: $ARGUMENTS
 
 Apply pending pdeq migrations from the pinned `.pdeq` submodule to this project. You are the migration runner. Shell helpers in `scripts/migrate.sh` do version math and file discovery; you drive the loop, read migration files, and execute semantic prompts inline.
 
@@ -9,7 +9,7 @@ Follow the steps below in order. Do not skip. Abort on any non-zero exit from a 
 
 ## Step 0 — Parse arguments
 
-`$ARGUMENTS` contains the flags passed to `/migrate`. Recognized forms:
+`$ARGUMENTS` contains the flags passed to `/pdeq-migrate`. Recognized forms:
 
 | Form | Meaning |
 |---|---|
@@ -60,7 +60,7 @@ If `RECORDED` is empty, print:
   What to do:
     1. Manually inspect your specs against pdeq <PINNED>'s expectations.
     2. Once confirmed in conformance, add "pdeqVersion": "<PINNED>" to pdeq.json.
-    3. Future upgrades will then run through /migrate normally.
+    3. Future upgrades will then run through /pdeq-migrate normally.
 ```
 
 Exit 2. Satisfies `FR-migrations-absent-version`, `AC-migrations-absent-reported`.
@@ -75,7 +75,7 @@ If `RECORDED > PINNED` (use `scripts/migrate.sh` subcommands — do not compare 
   This usually means the submodule was rolled back without also rolling back
   the recorded version, or this project is tracking a different pdeq lineage.
 
-  /migrate will not run. No files changed.
+  /pdeq-migrate will not run. No files changed.
 
   What to do:
     1. If you intended to roll back, also set pdeq.json "pdeqVersion" to <PINNED> or earlier.
@@ -94,7 +94,7 @@ Run `scripts/migrate.sh check-lineage`. On non-zero exit, print:
   The pinned pdeq submodule does not include a release tagged <RECORDED> in its
   history. This project may have been initialized against a fork.
 
-  /migrate will not run. No files changed.
+  /pdeq-migrate will not run. No files changed.
 
   What to do:
     1. Confirm the pdeq submodule URL in .gitmodules matches your release source.
@@ -160,7 +160,7 @@ For each version in `BREAKING_IN_WINDOW`, check whether a matching file exists i
   migration file is not present:
     expected: .pdeq/migrations/<VERSION>.md  (not found)
 
-  /migrate will not run. No files changed.
+  /pdeq-migrate will not run. No files changed.
 
   What to do:
     1. Confirm your pdeq submodule is fully checked out: `git submodule update --init`.
@@ -263,7 +263,7 @@ All migrations in `PENDING` completed. Print:
   Ran <N> migrations. Review the diff before committing.
 ```
 
-In dry-run, replace the final line with `[DRY RUN] No files were modified. Run /migrate to apply.` and drop the `✓` line.
+In dry-run, replace the final line with `[DRY RUN] No files were modified. Run /pdeq-migrate to apply.` and drop the `✓` line.
 
 Exit 0.
 
@@ -287,7 +287,7 @@ Print Surface 5:
 
   What to do:
     1. Resolve the cause above (<one-line paraphrase of the failure>).
-    2. Re-run /migrate. The runner will resume at <FAILED-VERSION>.
+    2. Re-run /pdeq-migrate. The runner will resume at <FAILED-VERSION>.
 
   No rollback was performed. Your working tree is as the failing step left it —
   review `git status` to inspect.
@@ -319,7 +319,7 @@ Tone rules from `design/cli/migrations.md`:
 
 ## Self-migration context (pdeq repo only)
 
-When `/migrate` runs inside the pdeq repository itself, the filesystem layout differs:
+When `/pdeq-migrate` runs inside the pdeq repository itself, the filesystem layout differs:
 
 - Migration files live at `migrations/<VERSION>.md` (no `.pdeq/` prefix). `scripts/migrate.sh` auto-detects this via the `MIGRATIONS_DIR` resolution rule.
 - The pinned version is read from `.pdeq/VERSION` (the self-pinned previous-stable submodule), not from root `VERSION` (which is the in-development version).
