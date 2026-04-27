@@ -4,7 +4,7 @@ set -euo pipefail
 # PDEQ bootstrap script
 # Orchestrates the full bootstrap flow for importing an existing codebase into PDEQ.
 #
-# This script is the shell-side half of the /bootstrap command. It validates
+# This script is the shell-side half of the /pdeq-bootstrap command. It validates
 # preconditions and resolves paths before Claude agents take over.
 #
 # Usage:
@@ -119,9 +119,9 @@ export PDEQ_DRY_RUN="$DRY_RUN"
 export PDEQ_FEATURE="$FEATURE"
 
 green "Bootstrap preconditions OK"
-info "Hand-off to /bootstrap command for agent orchestration."
+info "Hand-off to /pdeq-bootstrap command for agent orchestration."
 printf '\n'
-info "The /bootstrap command will:"
+info "The /pdeq-bootstrap command will:"
 info "  1. Spawn the bootstrap-analyzer against $CODE_ROOT"
 info "  2. Show you a summary and ask for confirmation"
 info "  3. Spawn the bootstrap-generator to write draft specs"

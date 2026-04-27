@@ -87,7 +87,7 @@ These cover the testable, observable outcomes QA verifies directly.
 ## Open Questions
 
 - **Grace period duration.** A newly-added functional requirement should not immediately block commits — authoring the spec and writing the code usually span separate commits. Engineering picks the concrete threshold (expected to be a small commit count measured against the product spec's git history) and documents rationale. The product spec only requires that a threshold exist.
-- **Bootstrap integration.** When `/bootstrap` generates specs from an existing codebase, should it simultaneously emit markers into the analyzed code? Likely yes, but defer scoping to a follow-up — this first pass covers only new work.
+- **Bootstrap integration.** When `/pdeq-bootstrap` generates specs from an existing codebase, should it simultaneously emit markers into the analyzed code? Likely yes, but defer scoping to a follow-up — this first pass covers only new work.
 
 ## Dependencies
 

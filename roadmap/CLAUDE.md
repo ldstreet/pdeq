@@ -2,7 +2,7 @@
 
 This folder holds **forward-looking notes** for features — fast follows, V2 ideas, future directions — that are **not yet scoped** for implementation.
 
-Roadmap entries are intentionally lightweight. They are not specs. Their job is to park ideas so product/design/engineering/QA specs stay focused on what exists today, and so future `/kickoff` runs have a starting point.
+Roadmap entries are intentionally lightweight. They are not specs. Their job is to park ideas so product/design/engineering/QA specs stay focused on what exists today, and so future `/pdeq-kickoff` runs have a starting point.
 
 ## What Goes Here
 
@@ -59,13 +59,13 @@ Horizon sections (**Fast Follow**, **V2**, **Later**) are a suggestion — use w
 - **Not tracked in `../index.md`.** Roadmap is not authoritative.
 - **Not audited by the pre-commit traceability hook.**
 - **Not platform-scoped at the folder level.** If an idea is platform-specific, mention platform inline. Do not create `roadmap/<platform>/` subfolders.
-- **Keep entries short.** One or two bullets per idea. If an idea needs a page of detail, it's ready for `/kickoff`.
+- **Keep entries short.** One or two bullets per idea. If an idea needs a page of detail, it's ready for `/pdeq-kickoff`.
 
 ## Graduation Flow
 
 When a roadmap item is ready for implementation:
 
-1. Run `/kickoff` on that item. The kickoff flow reads the roadmap entry for context, then creates a proper product spec (with slugs), design spec, engineering spec, and QA test plan.
+1. Run `/pdeq-kickoff` on that item. The kickoff flow reads the roadmap entry for context, then creates a proper product spec (with slugs), design spec, engineering spec, and QA test plan.
 2. Remove the graduated item from `<feature>.md`. Delete the file if empty.
 
 ## Path Resolution

@@ -177,7 +177,7 @@ Only `index.md` is written by the audit; all other files are read-only. Specific
 Example index.md row after an audit run:
 
 ```
-| FR-kickoff-roadmap-pull | FR | product/kickoff.md | design/cli/kickoff.md, engineering/cli/kickoff.md, qa/cli/kickoff.md | .claude/commands/kickoff.md:142, scripts/kickoff.sh:78 |
+| FR-kickoff-roadmap-pull | FR | product/kickoff.md | design/cli/kickoff.md, engineering/cli/kickoff.md, qa/cli/kickoff.md | .claude/commands/pdeq-kickoff.md:142, scripts/kickoff.sh:78 |
 ```
 
 Index header gains one column: `Code`. Existing rows gain an empty last cell on first run and fill on the first audit pass after implementation.
@@ -238,7 +238,7 @@ One optional field:
 | `engineering/CLAUDE.md` | New §Code Map subsection describing the format, placement, and lifecycle of the Code Map table in engineering specs. |
 | `engineering/cli/migrations.md` | Retrofit Code Map section (see PDEQ-fmeluqnd). |
 | `engineering/cli/code-mapping.md` | (this file) Code Map section at end. |
-| `.claude/commands/kickoff.md` | Engineering subagent prompt gains instruction to emit a Code Map section with planned paths per slug. Output gains a reminder line: "Remember: add `// Implements: <slug>` markers when implementing." |
+| `.claude/commands/pdeq-kickoff.md` | Engineering subagent prompt gains instruction to emit a Code Map section with planned paths per slug. Output gains a reminder line: "Remember: add `// Implements: <slug>` markers when implementing." |
 | `CLAUDE.md` (root) | New §Requirement ↔ Code Mapping section documenting the marker convention, Code Map, and audit behavior. |
 | `glossary.md` | Already updated with *Inline marker*, *Code Map*, *Traceability audit*, *Orphan marker*. No further change. |
 | `pdeq.schema.json` | Optional `codeMappingExclude` array of glob-pattern strings. |
@@ -304,14 +304,14 @@ All operations that could be nondeterministic are pinned:
 Each step below includes a one-line rationale for ordering. Atomic commits preferred.
 
 1. **Update `engineering/CLAUDE.md` with Code Map format.** Rationale: defines the format before anything parses it. Template only — no spec edits yet. Dependency for PDEQ-fmeluqnd.
-2. **Backfill Code Map in `engineering/cli/migrations.md`.** Rationale: proves the format on a real existing spec, smokes out format issues before audit parsing lands. All migration FRs go in as `implemented` rows with real paths. Any markers added to `.md` files in this step (notably in `.claude/commands/migrate.md`) use HTML-comment syntax `<!-- Implements: FR-… -->` — mixing with `//` or `#` in Markdown files will not be recognized by phase 5.
+2. **Backfill Code Map in `engineering/cli/migrations.md`.** Rationale: proves the format on a real existing spec, smokes out format issues before audit parsing lands. All migration FRs go in as `implemented` rows with real paths. Any markers added to `.md` files in this step (notably in `.claude/commands/pdeq-migrate.md`) use HTML-comment syntax `<!-- Implements: FR-… -->` — mixing with `//` or `#` in Markdown files will not be recognized by phase 5.
 3. **Implement `scan_markers` + syntax table in `audit-traceability.sh` (phase 5).** Rationale: unlocks orphan detection, the highest-value guarantee. At this step, phases 6–9 are stubs.
 4. **Implement `check_orphan_markers` + `check_retirement` (phases 5–6).** Rationale: first observable audit behavior. At this point the audit can reject invalid markers without yet understanding coverage.
 5. **Backfill `// Implements:` markers in existing pdeq scripts/commands/hooks for every current FR.** Rationale: must happen before coverage check goes live or every existing slug blocks. Covered by PDEQ-nydghudw.
 6. **Implement `parse_code_map` + `check_code_map_paths` (phase 7).** Rationale: requires the Code Map format to be stable in specs, which step 1–2 guaranteed.
 7. **Implement `check_coverage` + `grace_delta` (phase 8).** Rationale: builds on orphan detection and Code Map parsing; grace is the subtlest piece, so defer until earlier phases are proven.
 8. **Implement `rewrite_index_code_column` (phase 9) + add `Code` column to `index.md`.** Rationale: output-only; safe to land last because breaking the rewrite only dirties `index.md`, doesn't lose data. First run regenerates the column from the markers added in step 5.
-9. **Update `/kickoff` engineering subagent prompt.** Rationale: enforces the Code Map convention on all new features. Not a hard blocker since step 1 already documents it, but closes the loop.
+9. **Update `/pdeq-kickoff` engineering subagent prompt.** Rationale: enforces the Code Map convention on all new features. Not a hard blocker since step 1 already documents it, but closes the loop.
 10. **Update root `CLAUDE.md` with requirement↔code mapping section.** Rationale: top-level discoverability for new agents. Written last so it reflects actual implemented behavior.
 11. **Write bats tests per QA test plan.** Rationale: covered by PDEQ-seloclil; slots in after step 8.
 

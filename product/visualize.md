@@ -18,7 +18,7 @@ The visualize feature gives a consumer a cheap, throwaway preview of a design sp
 
 The user invokes a single command targeting a design spec and gets a viewable artifact in return.
 
-- **Slash command** `FR-visualize-command`: A `/visualize` slash command renders a design spec to a viewable artifact. The command accepts a feature name and resolves the corresponding design spec under the consumer's specs root.
+- **Slash command** `FR-visualize-command`: A `/pdeq-visualize` slash command renders a design spec to a viewable artifact. The command accepts a feature name and resolves the corresponding design spec under the consumer's specs root.
 - **Design spec as input** `FR-visualize-input-design-spec`: The command reads a design spec markdown file as its sole input. It does not read product, engineering, or QA specs to produce the artifact.
 - **Single-file output** `FR-visualize-single-file`: The rendered artifact is a single self-contained HTML file. Opening that one file in a browser must be sufficient to view the result. No build step, no external bundle, no required server.
 - **Browser-viewable** `FR-visualize-browser-viewable`: The artifact opens correctly in a modern desktop browser via the file system, with no installation or local server required from the user.
@@ -51,11 +51,11 @@ The following are deliberately out of scope. They are listed here so future requ
 - **No drift detection.** The visualize artifact carries no design-hash, no slug inventory, and is not audited by the traceability hook. Re-rendering after a design change is the user's responsibility.
 - **No mode flag.** There is no wireframe-versus-prototype selector and no fidelity tier. A second mode may be added later but is not part of this spec.
 - **No QA coverage.** The visualize artifact is not test-targeted. No QA test plan is authored for the rendered output.
-- **No design spec for the command.** `/visualize` is a CLI tool with no UI surface. No design spec is authored for the command itself.
+- **No design spec for the command.** `/pdeq-visualize` is a CLI tool with no UI surface. No design spec is authored for the command itself.
 
 ## Acceptance Criteria
 
-- [ ] **Renders an existing design spec** `AC-visualize-renders`: Invoking `/visualize <feature>` against a design spec that exists writes a single HTML file under `.pdeq/viz/` and opens it in the default browser.
+- [ ] **Renders an existing design spec** `AC-visualize-renders`: Invoking `/pdeq-visualize <feature>` against a design spec that exists writes a single HTML file under `.pdeq/viz/` and opens it in the default browser.
 - [ ] **Output gitignored** `AC-visualize-gitignored`: Files written to `.pdeq/viz/` do not appear in `git status` after a fresh run.
 - [ ] **Self-contained artifact** `AC-visualize-self-contained`: The generated HTML file opens and renders correctly when double-clicked from the file system, with no local server running.
 - [ ] **Missing design spec reported** `AC-visualize-missing-spec`: Invoking the command against a feature with no design spec reports the missing path and exits without writing an artifact.

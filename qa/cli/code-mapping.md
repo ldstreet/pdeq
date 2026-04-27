@@ -504,4 +504,4 @@ Probes the core marker-detection logic in isolation from the rest of the audit.
 
 - **Existing audit phases 1–4** must keep passing exactly as before. The harness runs the full audit on the current pdeq repo before and after the extension lands; output must differ only by the addition of phase-5–9 lines and the Code column in `index.md`.
 - **Migrations pre-commit gate (`audit-migrations.sh`)** is unrelated but shares the commit-msg hook chain. A smoke test runs both hooks in sequence on a realistic fixture to confirm no interference.
-- **`/kickoff` flow** — after PDEQ-srrrdnzx lands, `/kickoff` emits a Code Map section. Regression: run `/kickoff` on a throwaway feature, audit, confirm green.
+- **`/pdeq-kickoff` flow** — after PDEQ-srrrdnzx lands, `/pdeq-kickoff` emits a Code Map section. Regression: run `/pdeq-kickoff` on a throwaway feature, audit, confirm green.

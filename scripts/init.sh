@@ -427,7 +427,7 @@ printf '\n'
 info "Next steps:"
 info "  1. Review CLAUDE.md and add project-specific instructions"
 info "  2. Review pdeq.json — verify pdeqVersion, specsRoot, codeRoot, and platforms"
-info "  3. Run /bootstrap to generate draft specs from your existing code,"
-info "     or /kickoff to start your first feature from scratch"
+info "  3. Run /pdeq-bootstrap to generate draft specs from your existing code,"
+info "     or /pdeq-kickoff to start your first feature from scratch"
 info "  To update PDEQ later: git submodule update --remote $PDEQ_DIR"
 printf '\n'

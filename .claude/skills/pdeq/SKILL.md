@@ -29,7 +29,7 @@ Check if PDEQ is already installed:
 ls .pdeq 2>/dev/null && echo "ALREADY INSTALLED" || echo "NOT INSTALLED"
 ```
 
-If already installed, tell the user PDEQ is already set up, and offer to run `/kickoff` or `/bootstrap` instead.
+If already installed, tell the user PDEQ is already set up, and offer to run `/pdeq-kickoff` or `/pdeq-bootstrap` instead.
 
 ---
 
@@ -52,7 +52,7 @@ bash .pdeq/scripts/init.sh
 
 When done:
 - Tell the user PDEQ is installed
-- Tell them to open Claude Code (if not already in it) and run `/kickoff [feature description]` to start their first feature
+- Tell them to open Claude Code (if not already in it) and run `/pdeq-kickoff [feature description]` to start their first feature
 - Mention they can define platforms by editing the platform table in `CLAUDE.md`
 
 ---
@@ -72,8 +72,8 @@ bash .pdeq/scripts/init.sh --code-root <answer-1> --platforms <answer-2>
 
 When done:
 - Tell the user PDEQ is installed with `pdeq.json` configured
-- Tell them to run `/bootstrap` in Claude Code to analyze their existing code and generate draft specs
-- Mention `/bootstrap --dry-run` is available to preview without writing files
+- Tell them to run `/pdeq-bootstrap` in Claude Code to analyze their existing code and generate draft specs
+- Mention `/pdeq-bootstrap --dry-run` is available to preview without writing files
 
 ---
 
@@ -99,7 +99,7 @@ bash /Users/ldstreet/Development/pdeq/scripts/init.sh \
 When done:
 - Tell the user PDEQ is installed as a nested component
 - Tell them `.pdeq`, `scripts/`, and `.claude/commands/` were symlinked at the git root
-- Tell them to run `/bootstrap` to generate draft specs from existing code, or `/kickoff` to start fresh
+- Tell them to run `/pdeq-bootstrap` to generate draft specs from existing code, or `/pdeq-kickoff` to start fresh
 
 ---
 
@@ -109,9 +109,11 @@ Remind the user of the key commands:
 
 | Command | What it does |
 |---|---|
-| `/kickoff [feature]` | Start a new feature: product → design → engineering + QA |
-| `/bootstrap` | Generate draft specs from existing code |
-| `/status` | See feature coverage and traceability gaps |
-| `/impact [slug]` | See what would change if a requirement is modified |
+| `/pdeq-kickoff [feature]` | Start a new feature: product → design → engineering + QA |
+| `/pdeq-bootstrap` | Generate draft specs from existing code |
+| `/pdeq-status` | See feature coverage and traceability gaps |
+| `/pdeq-impact [slug]` | See what would change if a requirement is modified |
+| `/pdeq-migrate` | Apply pending pdeq migrations |
+| `/pdeq-update` | Bump pdeq and chain into `/pdeq-migrate` in one flow |
 
 The cardinal rule: **specs change first, code follows.** To change behavior, update the relevant spec in `product/`, `design/`, or `engineering/`, then update code to match.

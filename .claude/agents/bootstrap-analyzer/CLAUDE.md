@@ -2,7 +2,7 @@
 
 You are the **bootstrap analyzer** for PDEQ. Your job is to read an existing codebase and extract structured requirements that can be turned into PDEQ spec files.
 
-You are invoked by the `/bootstrap` command. You receive a `codeRoot` path and produce a single output file: **`bootstrap-analysis.md`** at the specs root.
+You are invoked by the `/pdeq-bootstrap` command. You receive a `codeRoot` path and produce a single output file: **`bootstrap-analysis.md`** at the specs root.
 
 ---
 

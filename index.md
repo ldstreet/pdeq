@@ -17,7 +17,7 @@ This file maps every requirement slug to all files that define or reference it. 
 ## Index
 
 | Slug | Type | Defined In | Referenced In | Code |
-|------|------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|------|------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | FR-migrations-version-field | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, pdeq.schema.json, VERSION | scripts/init.sh:304 |
 | FR-migrations-version-readable | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:82, scripts/migrate.sh:95 |
 | FR-migrations-absent-version | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | scripts/migrate.sh:82 |
@@ -25,27 +25,34 @@ This file maps every requirement slug to all files that define or reference it. 
 | FR-migrations-ordered | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:110 |
 | FR-migrations-mechanical-block | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:155 |
 | FR-migrations-semantic-block | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:155 |
-| FR-migrations-order-within | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | .claude/commands/migrate.md:1 |
+| FR-migrations-order-within | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | .claude/commands/pdeq-migrate.md:1 |
 | FR-migrations-author-written | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | migrations/TEMPLATE.md:8 |
-| FR-migrations-explicit-run | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | .claude/commands/migrate.md:1 |
+| FR-migrations-explicit-run | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | .claude/commands/pdeq-migrate.md:1 |
 | FR-migrations-pending-detection | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:110 |
-| FR-migrations-ordered-application | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | .claude/commands/migrate.md:1 |
+| FR-migrations-ordered-application | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | .claude/commands/pdeq-migrate.md:1 |
 | FR-migrations-version-bump | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:219 |
 | FR-migrations-nonbreaking-advance | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:301 |
 | FR-migrations-noop-when-current | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:110 |
-| FR-migrations-dry-run | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | .claude/commands/migrate.md:1 |
+| FR-migrations-dry-run | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | .claude/commands/pdeq-migrate.md:1 |
 | FR-migrations-idempotent | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | migrations/TEMPLATE.md:8 |
 | FR-migrations-scoped-writes | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:354 |
 | FR-migrations-breaking-gate | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | scripts/audit-migrations.sh:23 |
 | FR-migrations-no-false-positive | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | scripts/audit-migrations.sh:23 |
 | FR-migrations-lineage-integrity | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:272 |
 | FR-migrations-bootstrap-chain | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md |  |
-| FR-migrations-self-migration | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | .claude/commands/migrate.md:1 |
+| FR-migrations-self-migration | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | .claude/commands/pdeq-migrate.md:1 |
 | FR-migrations-atomic-bump | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:219 |
-| FR-migrations-failure-report | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | .claude/commands/migrate.md:1 |
+| FR-migrations-failure-report | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | .claude/commands/pdeq-migrate.md:1 |
 | FR-migrations-recoverable-partial | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | scripts/migrate.sh:219 |
 | FR-migrations-unknown-version | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:272 |
 | FR-migrations-missing-file-refused | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:301 |
+| FR-migrations-update-command | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md |  |
+| FR-migrations-update-bumps-pin | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md |  |
+| FR-migrations-update-chains | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md |  |
+| FR-migrations-update-in-session | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md |  |
+| FR-migrations-update-noop | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md |  |
+| FR-migrations-update-bump-failure | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md |  |
+| FR-migrations-update-dry-run | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md |  |
 | NFR-migrations-idempotency | NFR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md |  |
 | NFR-migrations-determinism | NFR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh |  |
 | NFR-migrations-scope-minimalism | NFR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh |  |
@@ -64,6 +71,11 @@ This file maps every requirement slug to all files that define or reference it. 
 | AC-migrations-self-migration-runs | AC | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md |  |
 | AC-migrations-nonbreaking-advance | AC | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh |  |
 | AC-migrations-missing-file-refused | AC | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh |  |
+| AC-migrations-update-end-to-end | AC | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md |  |
+| AC-migrations-update-noop | AC | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md |  |
+| AC-migrations-update-in-session | AC | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md |  |
+| AC-migrations-update-bump-failure | AC | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md |  |
+| AC-migrations-update-dry-run | AC | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md |  |
 | TC-migrations-status-line-printed | TC | qa/cli/migrations.md |  |  |
 | TC-migrations-status-line-at-latest | TC | qa/cli/migrations.md |  |  |
 | TC-migrations-version-field-read | TC | qa/cli/migrations.md |  |  |
@@ -122,6 +134,14 @@ This file maps every requirement slug to all files that define or reference it. 
 | TC-migrations-grep-friendly | TC | qa/cli/migrations.md |  |  |
 | TC-migrations-nonbreaking-advance | TC | qa/cli/migrations.md |  |  |
 | TC-migrations-missing-file-refused | TC | qa/cli/migrations.md |  |  |
+| TC-migrations-update-happy | TC | qa/cli/migrations.md |  |  |
+| TC-migrations-update-noop-current | TC | qa/cli/migrations.md |  |  |
+| TC-migrations-update-nonbreaking-only | TC | qa/cli/migrations.md |  |  |
+| TC-migrations-update-in-session-new-command | TC | qa/cli/migrations.md |  |  |
+| TC-migrations-update-bump-failure-network | TC | qa/cli/migrations.md |  |  |
+| TC-migrations-update-dry-run | TC | qa/cli/migrations.md |  |  |
+| TC-migrations-update-self-host-refuses | TC | qa/cli/migrations.md |  |  |
+| TC-migrations-update-symlink-prune | TC | qa/cli/migrations.md |  |  |
 | FR-code-mapping-marker-presence | FR | product/code-mapping.md | engineering/cli/code-mapping.md, qa/cli/code-mapping.md | scripts/audit-traceability.sh:176 |
 | FR-code-mapping-marker-multi | FR | product/code-mapping.md | engineering/cli/code-mapping.md, qa/cli/code-mapping.md |  |
 | FR-code-mapping-marker-scope | FR | product/code-mapping.md | engineering/cli/code-mapping.md, qa/cli/code-mapping.md | scripts/audit-traceability.sh:463 |
@@ -198,18 +218,25 @@ This file maps every requirement slug to all files that define or reference it. 
 | TC-code-mapping-skip-index-rewrite | TC | qa/cli/code-mapping.md |  |  |
 | TC-code-mapping-grace-default-5 | TC | qa/cli/code-mapping.md |  |  |
 | TC-code-mapping-implemented-status-no-marker | TC | qa/cli/code-mapping.md |  |  |
-| FR-visualize-command | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
-| FR-visualize-input-design-spec | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
-| FR-visualize-single-file | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
-| FR-visualize-browser-viewable | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
-| FR-visualize-auto-open | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
-| FR-visualize-output-path | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
-| FR-visualize-gitignored | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
-| FR-visualize-regenerable | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
-| FR-visualize-single-mode | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
-| FR-visualize-platform-scope | FR | product/visualize.md |  | .claude/commands/visualize.md:1 |
+| FR-visualize-command | FR | product/visualize.md |  | .claude/commands/pdeq-visualize.md:1 |
+| FR-visualize-input-design-spec | FR | product/visualize.md |  | .claude/commands/pdeq-visualize.md:1 |
+| FR-visualize-single-file | FR | product/visualize.md |  | .claude/commands/pdeq-visualize.md:1 |
+| FR-visualize-browser-viewable | FR | product/visualize.md |  | .claude/commands/pdeq-visualize.md:1 |
+| FR-visualize-auto-open | FR | product/visualize.md |  | .claude/commands/pdeq-visualize.md:1 |
+| FR-visualize-output-path | FR | product/visualize.md |  | .claude/commands/pdeq-visualize.md:1 |
+| FR-visualize-gitignored | FR | product/visualize.md |  | .claude/commands/pdeq-visualize.md:1 |
+| FR-visualize-regenerable | FR | product/visualize.md |  | .claude/commands/pdeq-visualize.md:1 |
+| FR-visualize-single-mode | FR | product/visualize.md |  | .claude/commands/pdeq-visualize.md:1 |
+| FR-visualize-platform-scope | FR | product/visualize.md |  | .claude/commands/pdeq-visualize.md:1 |
 | AC-visualize-renders | AC | product/visualize.md |  |  |
 | AC-visualize-gitignored | AC | product/visualize.md |  |  |
 | AC-visualize-self-contained | AC | product/visualize.md |  |  |
 | AC-visualize-missing-spec | AC | product/visualize.md |  |  |
 | AC-visualize-rerun-overwrites | AC | product/visualize.md |  |  |
+| FR-cli-naming-prefix | FR | product/cli-conventions.md | migrations/0.3.0.md | migrations/0.3.0.md:8 |
+| FR-cli-naming-rename-existing | FR | product/cli-conventions.md | migrations/0.3.0.md | migrations/0.3.0.md:8 |
+| FR-cli-naming-discoverable | FR | product/cli-conventions.md |  |  |
+| FR-cli-naming-no-collision | FR | product/cli-conventions.md |  |  |
+| AC-cli-naming-listing | AC | product/cli-conventions.md |  |  |
+| AC-cli-naming-no-bare-name | AC | product/cli-conventions.md |  |  |
+| AC-cli-naming-migration-carries | AC | product/cli-conventions.md |  |  |

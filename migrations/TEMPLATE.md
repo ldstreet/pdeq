@@ -1,7 +1,7 @@
 ---
 target-version: X.Y.Z
 breaking: true
-summary: One-line description shown in /migrate output after the em-dash.
+summary: One-line description shown in /pdeq-migrate output after the em-dash.
 scope: default
 ---
 

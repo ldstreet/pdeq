@@ -113,7 +113,7 @@ fi
 # ─── Step 8: breaking bump — require migrations/<new_ver>.md staged ─────────
 #
 # Printed path is `migrations/<ver>.md` (repo-local). The consumer-side
-# `.pdeq/migrations/` form is used by the /migrate runner, not by this gate.
+# `.pdeq/migrations/` form is used by the /pdeq-migrate runner, not by this gate.
 migration_file="migrations/${new_ver}.md"
 staged=$(git diff --cached --name-only 2>/dev/null || true)
 if grep -qxF "$migration_file" <<< "$staged"; then

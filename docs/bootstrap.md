@@ -130,7 +130,7 @@ monorepo/
 Once PDEQ is installed (any scenario above), run:
 
 ```
-/bootstrap
+/pdeq-bootstrap
 ```
 
 in Claude Code. This runs a 6-step process:
@@ -172,13 +172,13 @@ Claude shows you a summary of what was found — feature areas, requirement coun
 You can also run in dry-run mode to see the analysis without generating specs:
 
 ```
-/bootstrap --dry-run
+/pdeq-bootstrap --dry-run
 ```
 
 Or scope to a single feature if your codebase is large:
 
 ```
-/bootstrap --feature auth
+/pdeq-bootstrap --feature auth
 ```
 
 ### Step 4: Generate draft specs
@@ -222,7 +222,7 @@ You get a `bootstrap-summary.md` with:
 
 3. **Commit the generated specs** once you're satisfied they're ready to serve as the source of truth for ongoing development.
 
-4. **Run `/kickoff`** for any feature you want to design and implement end-to-end using the full PDEQ workflow.
+4. **Run `/pdeq-kickoff`** for any feature you want to design and implement end-to-end using the full PDEQ workflow.
 
 ---
 
@@ -231,7 +231,7 @@ You get a `bootstrap-summary.md` with:
 | Field | Type | Default | Description |
 |---|---|---|---|
 | `specsRoot` | string | `"."` | Relative path from `pdeq.json` to the directory containing `product/`, `design/`, etc. |
-| `codeRoot` | string | `"."` | Relative path to source code root (for `/bootstrap` analysis) |
+| `codeRoot` | string | `"."` | Relative path to source code root (for `/pdeq-bootstrap` analysis) |
 | `platforms` | string[] | `[]` | List of platform IDs corresponding to subfolders in `design/`, `engineering/`, `qa/` |
 | `pdeqDir` | string | `".pdeq"` | Path to the `.pdeq` submodule, relative to the git root |
 | `nested.repoRoot` | string | — | Path from the `pdeq.json` location up to the actual git root |
@@ -241,12 +241,12 @@ Full schema with validation: [`pdeq.schema.json`](../pdeq.schema.json)
 
 ---
 
-## /bootstrap Command Reference
+## /pdeq-bootstrap Command Reference
 
 ```
-/bootstrap                    Fully interactive bootstrap
-/bootstrap --dry-run          Analyze only, no files written
-/bootstrap --feature <name>   Bootstrap a single feature area only
+/pdeq-bootstrap                    Fully interactive bootstrap
+/pdeq-bootstrap --dry-run          Analyze only, no files written
+/pdeq-bootstrap --feature <name>   Bootstrap a single feature area only
 ```
 
 The command:

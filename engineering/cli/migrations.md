@@ -1,6 +1,6 @@
 ---
-product-hash: 57989bdfa4a1b7932246610097fde9829620c2a63715c97c934c80fc0878fedd
-product-slugs: [AC-migrations-absent-reported, AC-migrations-dry-run-accurate, AC-migrations-gate-allows-nonbreaking, AC-migrations-gate-blocks, AC-migrations-idempotent-rerun, AC-migrations-lineage-refused, AC-migrations-missing-file-refused, AC-migrations-no-bump-on-failure, AC-migrations-nonbreaking-advance, AC-migrations-noop-when-current, AC-migrations-ordered-apply, AC-migrations-scope-respected, AC-migrations-self-migration-runs, AC-migrations-semantic-context, FR-migrations-absent-version, FR-migrations-atomic-bump, FR-migrations-author-written, FR-migrations-bootstrap-chain, FR-migrations-breaking-gate, FR-migrations-dry-run, FR-migrations-explicit-run, FR-migrations-failure-report, FR-migrations-idempotent, FR-migrations-lineage-integrity, FR-migrations-mechanical-block, FR-migrations-missing-file-refused, FR-migrations-no-false-positive, FR-migrations-nonbreaking-advance, FR-migrations-noop-when-current, FR-migrations-one-per-version, FR-migrations-order-within, FR-migrations-ordered, FR-migrations-ordered-application, FR-migrations-pending-detection, FR-migrations-recoverable-partial, FR-migrations-scoped-writes, FR-migrations-self-migration, FR-migrations-semantic-block, FR-migrations-unknown-version, FR-migrations-version-bump, FR-migrations-version-field, FR-migrations-version-readable, NFR-migrations-determinism, NFR-migrations-enforcement-precision, NFR-migrations-idempotency, NFR-migrations-scope-minimalism]
+product-hash: 7e42c8798456b4865d3587297815795edd1881abf503cac093811f6011b752a7
+product-slugs: [AC-migrations-absent-reported, AC-migrations-dry-run-accurate, AC-migrations-gate-allows-nonbreaking, AC-migrations-gate-blocks, AC-migrations-idempotent-rerun, AC-migrations-lineage-refused, AC-migrations-missing-file-refused, AC-migrations-no-bump-on-failure, AC-migrations-nonbreaking-advance, AC-migrations-noop-when-current, AC-migrations-ordered-apply, AC-migrations-scope-respected, AC-migrations-self-migration-runs, AC-migrations-semantic-context, AC-migrations-update-bump-failure, AC-migrations-update-dry-run, AC-migrations-update-end-to-end, AC-migrations-update-in-session, AC-migrations-update-noop, FR-migrations-absent-version, FR-migrations-atomic-bump, FR-migrations-author-written, FR-migrations-bootstrap-chain, FR-migrations-breaking-gate, FR-migrations-dry-run, FR-migrations-explicit-run, FR-migrations-failure-report, FR-migrations-idempotent, FR-migrations-lineage-integrity, FR-migrations-mechanical-block, FR-migrations-missing-file-refused, FR-migrations-no-false-positive, FR-migrations-nonbreaking-advance, FR-migrations-noop-when-current, FR-migrations-one-per-version, FR-migrations-order-within, FR-migrations-ordered, FR-migrations-ordered-application, FR-migrations-pending-detection, FR-migrations-recoverable-partial, FR-migrations-scoped-writes, FR-migrations-self-migration, FR-migrations-semantic-block, FR-migrations-unknown-version, FR-migrations-update-bump-failure, FR-migrations-update-bumps-pin, FR-migrations-update-chains, FR-migrations-update-command, FR-migrations-update-dry-run, FR-migrations-update-in-session, FR-migrations-update-noop, FR-migrations-version-bump, FR-migrations-version-field, FR-migrations-version-readable, NFR-migrations-determinism, NFR-migrations-enforcement-precision, NFR-migrations-idempotency, NFR-migrations-scope-minimalism]
 ---
 # Migrations — CLI Technical Spec
 
@@ -9,15 +9,15 @@ product-slugs: [AC-migrations-absent-reported, AC-migrations-dry-run-accurate, A
 
 ## What We're Building
 
-The migrations feature adds an explicit upgrade contract between pdeq and consumer projects. Technically, it is (a) a new `pdeqVersion` field in `pdeq.json`, (b) a directory of author-written migration markdown files checked into the pdeq repo and surfaced to consumers through the existing `.pdeq` submodule, (c) a `/migrate` slash command whose orchestration lives in a markdown file that Claude drives — delegating deterministic version math, file discovery, and idempotent mechanical edits to POSIX-compatible shell helpers in `scripts/` — and (d) a new pre-commit hook in the pdeq repo that blocks breaking version bumps without a matching migration file.
+The migrations feature adds an explicit upgrade contract between pdeq and consumer projects. Technically, it is (a) a new `pdeqVersion` field in `pdeq.json`, (b) a directory of author-written migration markdown files checked into the pdeq repo and surfaced to consumers through the existing `.pdeq` submodule, (c) a `/pdeq-migrate` slash command whose orchestration lives in a markdown file that Claude drives — delegating deterministic version math, file discovery, and idempotent mechanical edits to POSIX-compatible shell helpers in `scripts/` — and (d) a new pre-commit hook in the pdeq repo that blocks breaking version bumps without a matching migration file.
 
-Two design decisions shape everything downstream. First, the runner is **Claude-orchestrated, not shell-orchestrated**: shell scripts cannot hand control back to an AI agent mid-run to execute a semantic block, so the `/migrate` slash command itself loops across pending migrations, invoking shell helpers for mechanical work and reading the semantic prompt block inline to execute it. Second, scope enforcement is **author discipline + post-run audit**, not a sandboxed filesystem — a real sandbox is overkill for v1 and would complicate the hybrid Claude/shell execution model; a post-hoc check against the declared `scope:` frontmatter field is sufficient to catch author mistakes.
+Two design decisions shape everything downstream. First, the runner is **Claude-orchestrated, not shell-orchestrated**: shell scripts cannot hand control back to an AI agent mid-run to execute a semantic block, so the `/pdeq-migrate` slash command itself loops across pending migrations, invoking shell helpers for mechanical work and reading the semantic prompt block inline to execute it. Second, scope enforcement is **author discipline + post-run audit**, not a sandboxed filesystem — a real sandbox is overkill for v1 and would complicate the hybrid Claude/shell execution model; a post-hoc check against the declared `scope:` frontmatter field is sufficient to catch author mistakes.
 
 ## Technical Approach
 
-### Execution model — split between `/migrate` (Claude) and shell helpers
+### Execution model — split between `/pdeq-migrate` (Claude) and shell helpers
 
-The `/migrate` slash command is the orchestrator. It is a markdown file at `.claude/commands/migrate.md` that instructs Claude to:
+The `/pdeq-migrate` slash command is the orchestrator. It is a markdown file at `.claude/commands/pdeq-migrate.md` that instructs Claude to:
 
 1. Invoke `scripts/migrate.sh` subcommands (pure shell, no AI) to: read recorded and pinned versions, list pending migration files, parse a migration file's frontmatter and section table of contents, and bump the recorded version on success.
 2. For each pending migration, execute the mechanical block by running the shell commands verbatim from the migration's `## Mechanical` section via the Bash tool.
@@ -60,7 +60,7 @@ Single script, subcommand-dispatched. Every subcommand is non-interactive, print
 | `recorded` | — | `0.3.2` or empty | Prints the `pdeqVersion` from `pdeq.json`, or empty if absent. |
 | `pinned` | — | `0.4.0` | Prints the pinned pdeq version (reads `.pdeq/VERSION` or equivalent). |
 | `list-pending` | — | `0.3.0\n0.3.2\n0.4.0` | Prints pending migration versions, one per line, ascending semver. Empty if none. |
-| `parse <file>` | migration path | machine-readable block | Prints frontmatter + section-heading table of contents for a migration file. Used by the `/migrate` orchestrator to know whether `## Semantic` is present. |
+| `parse <file>` | migration path | machine-readable block | Prints frontmatter + section-heading table of contents for a migration file. Used by the `/pdeq-migrate` orchestrator to know whether `## Semantic` is present. |
 | `bump <version>` | target version | — | Writes the new `pdeqVersion` back to `pdeq.json`. Fails if target is older than current recorded. |
 | `check-lineage <version>` | pinned version | — | Verifies the recorded version appears in the pinned pdeq's tag history (or VERSION history). Non-zero if lineage mismatch. |
 | `lineage-breaking <from> <to>` | exclusive-from, inclusive-to | `0.4.0\n0.5.0` | Prints versions declared breaking in the pinned lineage between `<from>` (exclusive) and `<to>` (inclusive). Empty if all intervening releases are non-breaking. Orchestrator uses this to distinguish non-breaking-advance (`FR-migrations-nonbreaking-advance`) from missing-file refusal (`FR-migrations-missing-file-refused`). |
@@ -84,9 +84,9 @@ semantic-files: product/**/*.md design/**/*.md engineering/**/*.md qa/**/*.md
 
 The orchestrator uses this to decide whether to run a semantic pass (and, in dry-run, whether to print the "(absent)" line or the summary-only preview).
 
-### `/migrate` command-line surface
+### `/pdeq-migrate` command-line surface
 
-The slash command accepts the argument forms from design Surface 1: bare `/migrate`, `/migrate --dry-run`, `/migrate --from <version>`. The orchestrator parses these from `$ARGUMENTS` inside `.claude/commands/migrate.md`.
+The slash command accepts the argument forms from design Surface 1: bare `/pdeq-migrate`, `/pdeq-migrate --dry-run`, `/pdeq-migrate --from <version>`. The orchestrator parses these from `$ARGUMENTS` inside `.claude/commands/pdeq-migrate.md`.
 
 Satisfies `FR-migrations-dry-run`, `FR-migrations-explicit-run`.
 
@@ -99,7 +99,9 @@ Satisfies `FR-migrations-dry-run`, `FR-migrations-explicit-run`.
 | `VERSION` | file | Single-line semver at pdeq repo root — authoritative pdeq version. |
 | `scripts/migrate.sh` | shell | Subcommand dispatcher for version math, file discovery, parsing, and version bump. |
 | `scripts/audit-migrations.sh` | shell | Commit-msg hook — blocks breaking version bumps that lack a matching migration file. |
-| `.claude/commands/migrate.md` | markdown | `/migrate` slash command — orchestrates the runner from Claude's execution context. |
+| `scripts/sync-symlinks.sh` | shell | Idempotent helper that creates missing symlinks under `<git-root>/scripts/` and `<git-root>/.claude/commands/` from the `.pdeq/` submodule, and (with `--prune`) removes dangling symlinks for files that no longer exist. Called by both `init.sh` Steps 5–6 and `.claude/commands/pdeq-update.md`. |
+| `.claude/commands/pdeq-migrate.md` | markdown | `/pdeq-migrate` slash command — orchestrates the runner from Claude's execution context. |
+| `.claude/commands/pdeq-update.md` | markdown | `/pdeq-update` slash command — orchestrates the consumer-facing upgrade flow: bump submodule, sync symlinks, chain into the migration loop. |
 | `.pdeq/migrations/` | directory | Container for authored migration files. In the pdeq repo itself, this lives at `migrations/` at the repo root (see §Bootstrap chain). |
 | `.pdeq/migrations/0.2.0.md` (first real migration) | markdown | The first authored migration file, created when the first breaking change after baseline lands. |
 
@@ -108,7 +110,7 @@ Satisfies `FR-migrations-dry-run`, `FR-migrations-explicit-run`.
 | Path | Change |
 |---|---|
 | `pdeq.schema.json` | Add optional `pdeqVersion` field (semver pattern). |
-| `scripts/init.sh` | Always create `pdeq.json` (even in default-config cases) and populate `pdeqVersion` from the pdeq `VERSION` file. |
+| `scripts/init.sh` | Always create `pdeq.json` (even in default-config cases) and populate `pdeqVersion` from the pdeq `VERSION` file. Refactor Steps 5–6 to call `scripts/sync-symlinks.sh` (without `--prune`) instead of the inline symlink loops, so init and update share one implementation of the symlink rules. |
 | `CLAUDE.md` (root) | No behavior change; any future version-dependent coordinator behavior reads `pdeqVersion` via `scripts/migrate.sh recorded`. |
 | `glossary.md` | Already contains the relevant terms — no change needed. |
 | `.git/hooks/pre-commit` + `.git/hooks/commit-msg` (local, not checked in) | Document the two-hook composition: `pre-commit` runs `audit-traceability.sh` and `merge-decisions.sh`; `commit-msg` runs `audit-migrations.sh`. The pdeq repo does not currently check in any hooks; this spec proposes documenting the expected composition in a README-adjacent location (see §Commit-msg hook). |
@@ -164,7 +166,7 @@ Satisfies `FR-migrations-version-field`, `FR-migrations-version-readable`, `NFR-
 
 The design spec requires that recorded version advance only to the last fully-applied migration on failure (`FR-migrations-atomic-bump`, `AC-migrations-no-bump-on-failure`, design Surface 5's "Recorded pdeq version: 0.3.0 (advanced from 0.2.1 — 0.3.0 applied cleanly)"). Two implementation strategies:
 
-- **Per-migration bump (chosen).** After each migration completes cleanly, immediately call `scripts/migrate.sh bump <version>`. On failure mid-run, the recorded version is already at the last fully-applied migration; no rollback is needed. Resuming via `/migrate` picks up from the now-recorded version.
+- **Per-migration bump (chosen).** After each migration completes cleanly, immediately call `scripts/migrate.sh bump <version>`. On failure mid-run, the recorded version is already at the last fully-applied migration; no rollback is needed. Resuming via `/pdeq-migrate` picks up from the now-recorded version.
 - **Whole-run atomic bump (rejected).** Defer all version writes until every migration in the batch succeeds. Failures require rollback logic or leave recorded version behind last-applied — either violates the design's explicit "advanced to 0.3.0" output.
 
 Per-migration bump is chosen because it directly realizes the design's observable behavior, makes partial runs resumable without special handling, and avoids any rollback machinery. Tradeoff: the `pdeq.json` file is rewritten once per migration in a multi-migration batch — noisy in `git status` but harmless, and the noise is a feature (it makes partial application visible).
@@ -217,7 +219,7 @@ The design spec defines the user-facing failure surfaces (Surface 5 for mid-run 
 
 | Error | Exit code | Exit path |
 |---|---|---|
-| Absent `pdeqVersion` | 2 (precondition) | `/migrate` orchestrator prints Surface 6 sub-case 1 and stops. |
+| Absent `pdeqVersion` | 2 (precondition) | `/pdeq-migrate` orchestrator prints Surface 6 sub-case 1 and stops. |
 | Recorded > pinned | 2 | Surface 6 sub-case 2. |
 | Foreign lineage | 2 | Surface 6 sub-case 3 — detected via `check-lineage` subcommand. |
 | Mechanical block fails | 1 (run failure) | Orchestrator prints Surface 5, leaves filesystem as-is, does not bump version for the failing migration. |
@@ -245,7 +247,7 @@ Idempotency is mostly the author's responsibility — mechanical scripts must be
 
 Engineering's contribution to idempotency:
 
-- **No-op detection in `list-pending`.** When recorded == pinned, `list-pending` produces empty output; the orchestrator prints Surface 2 without invoking any migration's shell block. This gives idempotency a shortcut — re-running `/migrate` after a clean run does literally nothing.
+- **No-op detection in `list-pending`.** When recorded == pinned, `list-pending` produces empty output; the orchestrator prints Surface 2 without invoking any migration's shell block. This gives idempotency a shortcut — re-running `/pdeq-migrate` after a clean run does literally nothing.
 - **Per-migration bump** (§Atomic version bump) means the second run starts from the advanced recorded version; any already-applied migrations are outside the pending window.
 
 Satisfies `FR-migrations-idempotent`, `FR-migrations-noop-when-current`, `NFR-migrations-idempotency`, `AC-migrations-noop-when-current`, `AC-migrations-idempotent-rerun`.
@@ -289,7 +291,7 @@ Satisfies `FR-migrations-scoped-writes`, `NFR-migrations-scope-minimalism`, `AC-
 
 ### Mechanical block execution model
 
-Shell blocks from `## Mechanical` are executed via the Bash tool from inside the `/migrate` slash command. They run with the consumer's shell environment unchanged — no attempt to strip env vars, no sandboxed PATH. This matches how `init.sh` and `audit-traceability.sh` are run today.
+Shell blocks from `## Mechanical` are executed via the Bash tool from inside the `/pdeq-migrate` slash command. They run with the consumer's shell environment unchanged — no attempt to strip env vars, no sandboxed PATH. This matches how `init.sh` and `audit-traceability.sh` are run today.
 
 The orchestrator pins `cd` to the consumer's specs root before each mechanical block (`cd "$specsRoot"`) so relative paths in the migration work uniformly. Authors referring to `.pdeq/migrations/<version>/helper.sh` (companion shell scripts alongside the migration markdown) must use the `$PDEQ_MIGRATIONS_DIR` env var the orchestrator exports, not hard-coded paths.
 
@@ -362,7 +364,7 @@ This departs from the `pre-commit` convention used elsewhere in pdeq (e.g., `aud
 
 On block, stdout matches design Surface 8 exactly. On allow (trailer case), a single-line log. On non-matching commits (docs-only, non-framework, non-breaking), total silence (`NFR-migrations-enforcement-precision`).
 
-**Path context in output.** The `expected: …` line names the filesystem path where the missing migration file would be. Because this hook runs **only inside the pdeq repo**, the printed path is always `migrations/<version>.md` — no `.pdeq/` prefix. (The `.pdeq/migrations/<version>.md` form shown in the design spec's Screen Inventory describes the **consumer-side** path where the same file is reached via the submodule; that form is used by the `/migrate` runner's missing-file error, not by this gate.) Concretely the gate always uses the repo-local path, and the `/migrate` orchestrator resolves its path from `$PDEQ_MIGRATIONS_DIR` (default `.pdeq/migrations/` for consumers). This split is what reconciles the two paths that appear in upstream specs.
+**Path context in output.** The `expected: …` line names the filesystem path where the missing migration file would be. Because this hook runs **only inside the pdeq repo**, the printed path is always `migrations/<version>.md` — no `.pdeq/` prefix. (The `.pdeq/migrations/<version>.md` form shown in the design spec's Screen Inventory describes the **consumer-side** path where the same file is reached via the submodule; that form is used by the `/pdeq-migrate` runner's missing-file error, not by this gate.) Concretely the gate always uses the repo-local path, and the `/pdeq-migrate` orchestrator resolves its path from `$PDEQ_MIGRATIONS_DIR` (default `.pdeq/migrations/` for consumers). This split is what reconciles the two paths that appear in upstream specs.
 
 Satisfies `FR-migrations-breaking-gate`, `FR-migrations-no-false-positive`, `NFR-migrations-enforcement-precision`, `AC-migrations-gate-blocks`, `AC-migrations-gate-allows-nonbreaking`.
 
@@ -375,9 +377,9 @@ Currently pdeq has no `.pdeq` submodule; it **is** pdeq. There is no previous-st
 The bootstrap plan:
 
 1. **Before this feature ships**, tag the current `main` as `v0.1.0`. This is the baseline — pdeq without migrations, without `pdeqVersion`, without a VERSION file.
-2. **This feature lands in `v0.2.0`** (or whatever the next version is). The merge introduces: `VERSION` file with `0.2.0`, the `pdeqVersion` schema field, `scripts/migrate.sh`, `scripts/audit-migrations.sh`, `.claude/commands/migrate.md`, `migrations/` directory, and `migrations/0.2.0.md` — the first authored migration. The 0.2.0 migration's job is to tell consumers "add `pdeqVersion: 0.2.0` to your `pdeq.json`" — mechanical block edits the file directly.
+2. **This feature lands in `v0.2.0`** (or whatever the next version is). The merge introduces: `VERSION` file with `0.2.0`, the `pdeqVersion` schema field, `scripts/migrate.sh`, `scripts/audit-migrations.sh`, `.claude/commands/pdeq-migrate.md`, `migrations/` directory, and `migrations/0.2.0.md` — the first authored migration. The 0.2.0 migration's job is to tell consumers "add `pdeqVersion: 0.2.0` to your `pdeq.json`" — mechanical block edits the file directly.
 3. **After v0.2.0 is tagged**, the pdeq repo adds itself as a submodule: `git submodule add <self-url> .pdeq`, pinned to `v0.1.0`. The pdeq repo's own `pdeq.json` declares `pdeqVersion: 0.1.0` — the pdeq repo is now a consumer of pdeq-v0.1.0.
-4. **On release of v0.3.0**: the maintainer bumps `VERSION` to `0.3.0`, authors `migrations/0.3.0.md`, ensures the `commit-msg` gate passes, commits, tags `v0.3.0`. Then bumps `.pdeq` submodule pin from `v0.1.0` → `v0.2.0` (the previous release, not v0.3.0 — pdeq is always a consumer of N-1), runs `/migrate` against its own specs, commits the resulting diff.
+4. **On release of v0.3.0**: the maintainer bumps `VERSION` to `0.3.0`, authors `migrations/0.3.0.md`, ensures the `commit-msg` gate passes, commits, tags `v0.3.0`. Then bumps `.pdeq` submodule pin from `v0.1.0` → `v0.2.0` (the previous release, not v0.3.0 — pdeq is always a consumer of N-1), runs `/pdeq-migrate` against its own specs, commits the resulting diff.
 
 ### Why N-1, not N-2 or N
 
@@ -414,22 +416,22 @@ git push origin main --tags
 # Then, pdeq-as-its-own-consumer:
 cd .pdeq && git fetch && git checkout v0.2.0 && cd -   # bump pin to N-1
 # Update pdeq.json pdeqVersion to 0.2.0 was already done; now run:
-/migrate   # executes migrations/0.2.0.md against pdeq's own specs
+/pdeq-migrate   # executes migrations/0.2.0.md against pdeq's own specs
 git add pdeq.json .pdeq <migrated spec files>
 git commit -m "Bump self-pdeq to v0.2.0"
 ```
 
 Satisfies `FR-migrations-bootstrap-chain`, `FR-migrations-self-migration`, `AC-migrations-self-migration-runs`.
 
-## `/migrate` slash command markdown
+## `/pdeq-migrate` slash command markdown
 
 ### Location
 
-`.claude/commands/migrate.md` at the pdeq repo root. Symlinked into consumer projects by `init.sh`'s Step 6 (which already symlinks everything in `.pdeq/.claude/commands/*`).
+`.claude/commands/pdeq-migrate.md` at the pdeq repo root. Symlinked into consumer projects by `init.sh`'s Step 6 (which already symlinks everything in `.pdeq/.claude/commands/*`).
 
 ### Contents (shape, not verbatim)
 
-The file follows the `kickoff.md` / `bootstrap.md` / `status.md` conventions already established in `.claude/commands/`:
+The file follows the `pdeq-kickoff.md` / `pdeq-bootstrap.md` / `pdeq-status.md` conventions already established in `.claude/commands/`:
 
 1. **Header** — `# Migrate: $ARGUMENTS` and one-sentence description.
 2. **Step 0: Parse arguments.** Flags: `--dry-run`, `--from <version>`.
@@ -449,9 +451,238 @@ The file follows the `kickoff.md` / `bootstrap.md` / `status.md` conventions alr
    - **Bump:** on clean completion, invoke `scripts/migrate.sh bump <version>`.
 7. **Step 5: Print trailing summary.** Success: design's `✓ pdeq: recorded X → Y` + "Ran N migrations".
 
-The markdown itself is procedural — it instructs Claude the same way `kickoff.md` does, not a template to be filled in.
+The markdown itself is procedural — it instructs Claude the same way `pdeq-kickoff.md` does, not a template to be filled in.
 
 Satisfies `FR-migrations-explicit-run`, `FR-migrations-ordered-application`, `FR-migrations-order-within`, `FR-migrations-dry-run`, `FR-migrations-version-bump`, `FR-migrations-failure-report`, `AC-migrations-ordered-apply`, `AC-migrations-dry-run-accurate`, `AC-migrations-semantic-context`.
+
+## Upgrade Entrypoint
+
+`/pdeq-update` is the consumer-facing wrapper that combines the submodule bump and the `/pdeq-migrate` run into a single invocation. Like `/pdeq-migrate`, it is a **prompt-driven runner**: shell helpers do the deterministic git plumbing, the model orchestrates the loop and prints output. The two commands are deliberately separate slash commands rather than one with a `--bump` flag — design's command-name decision is binding here, and engineering reuses the runner pattern rather than reimplementing it.
+
+### Command shape and location
+
+The slash command lives at `.claude/commands/pdeq-update.md` in consumer projects, symlinked from `.pdeq/.claude/commands/pdeq-update.md` by the existing `init.sh` Step 6 loop (which is filesystem-driven and picks up new files automatically — no init.sh change needed for the command file itself). In the pdeq repo's self-host context, `pdeq-update.md` lives at `<repo-root>/.claude/commands/pdeq-update.md` and ships through the same submodule mechanism as every other command.
+
+Argument surface (parsed from `$ARGUMENTS` inside `pdeq-update.md`):
+
+| Form | Meaning |
+|---|---|
+| (empty) | Bump pin, then chain into the migration loop. |
+| `--dry-run` | Preview the bump target and the migrations a real `/pdeq-update` would queue. No git writes, no migration runs, no symlink changes. |
+
+No `--from`, no `--yes` flag (auto-run handoff is fixed by design Surface 12).
+
+Satisfies `FR-migrations-update-command`.
+
+### Bump implementation
+
+The bump step runs `git submodule update --remote .pdeq` from `$GIT_ROOT`, then reads the post-bump `.pdeq/VERSION` to learn the target version. Per-step:
+
+1. **Capture pre-bump state.**
+
+   ```bash
+   PRE_PIN_SHA=$(git -C .pdeq rev-parse HEAD)
+   PRE_PINNED=$(scripts/migrate.sh pinned)   # reads .pdeq/VERSION
+   ```
+
+2. **Advance the submodule.**
+
+   ```bash
+   git submodule update --remote --force .pdeq
+   ```
+
+   `--force` discards local commits inside the submodule (the consumer should not be authoring inside `.pdeq/`); `--remote` follows the configured `branch` for the submodule (defaults to the tracking branch in `.gitmodules`, conventionally `main` or a `release/*` line — engineering does not own picking the line; that's submodule-config).
+
+3. **Capture post-bump state.**
+
+   ```bash
+   POST_PIN_SHA=$(git -C .pdeq rev-parse HEAD)
+   POST_PINNED=$(scripts/migrate.sh pinned)
+   ```
+
+4. **No-op detection.** If `PRE_PIN_SHA == POST_PIN_SHA`, the remote tracking branch had no new commits — nothing was bumped. The runner short-circuits to design Surface 11 (`~ Already at <PINNED>`) and exits 0 without invoking `/pdeq-migrate`. We compare submodule SHAs rather than VERSION strings because two consecutive releases with the same VERSION (mid-development snapshots) should still be treated as no-op when the SHA matches; conversely, a SHA-only advance with no VERSION change is also a no-op for migration purposes (recorded version cannot move past pinned, and pinned didn't move). The user-visible "version" used in the surface line is `$POST_PINNED`.
+
+   Satisfies `FR-migrations-update-noop`, `AC-migrations-update-noop`.
+
+5. **Failure modes during the bump:**
+
+   | Failure | Detection | Surface |
+   |---|---|---|
+   | Network unreachable | `git submodule update --remote` non-zero exit; stderr contains `unable to access`, `Could not resolve host`, or similar | Design Surface 14 — `✗ failed: could not fetch latest pdeq reference.` followed by the captured stderr. |
+   | Auth failure on remote | non-zero exit; stderr names credentials or 401/403 | Same Surface 14 with the captured stderr. |
+   | Submodule URL misconfigured | non-zero exit; stderr names the URL | Same Surface 14. |
+   | Detached-head state inside submodule with uncommitted changes | non-zero exit before fetch | Same Surface 14 with a hint to `git -C .pdeq status`. |
+   | Fetch succeeded but checkout failed (rare — divergent local refs) | post-`update` exit non-zero, but `PRE_PIN_SHA != POST_PIN_SHA` could not be established | Surface 14, treat as bump failure; do not write recorded version. |
+
+   In every failure case: the recorded `pdeqVersion` is **not** advanced (the bump step lives entirely outside `scripts/migrate.sh bump`), `/pdeq-migrate` is **not** invoked, and the working tree's only mutation is whatever `git submodule update` did internally (which the user can inspect via `git status`). Per design Surface 14 there is no "rollback was performed" line — the bump is atomic-or-not at the git level.
+
+   Satisfies `FR-migrations-update-bump-failure`, `AC-migrations-update-bump-failure`.
+
+The bump shell can be inlined in `pdeq-update.md`'s prompt body or factored into a small `scripts/update.sh bump-pin` helper. We choose **inline** in `pdeq-update.md` (matching the `/pdeq-migrate` precedent of "deterministic shell-only helpers in `scripts/migrate.sh`, prompt orchestration in `.claude/commands/pdeq-migrate.md`"), with the failure-detection guards expressed as bash conditionals the model executes via the Bash tool. If a future maintainer finds the bump logic getting too large to embed comfortably, factor to `scripts/update.sh` then — the command file is the orchestrator, not the algorithm host.
+
+Satisfies `FR-migrations-update-bumps-pin`, `FR-migrations-update-bump-failure`.
+
+### Chained migration — approach A (inline reuse), chosen
+
+Two viable approaches were considered:
+
+- **A) Inline reuse (chosen).** `pdeq-update.md` is structurally a superset of `pdeq-migrate.md`'s prompt. After the bump succeeds, the same loop pattern (Steps 1–5 of `pdeq-migrate.md`) runs in the same prompt with the same shell helpers (`scripts/migrate.sh list-pending`, `parse`, `bump`, `audit-scope`). The migrate steps are duplicated in the update prompt body, indented two spaces under a `▸ Migrating` lead-in to match design Surface 12's nested visual.
+- **B) Delegation.** `pdeq-update.md` ends with an instruction to "now run /pdeq-migrate" or invokes `/pdeq-migrate` as a subagent. Rejected because: (i) Claude Code does not have a stable in-prompt mechanism for one slash command to invoke another mid-execution as a structured call, only as a prose instruction the model may or may not follow verbatim; (ii) the chained migrate run needs to share state (`PINNED`, `POST_PIN_SHA`, the in-session symlink-sync result) with the bump preamble, which requires either env-var passing through a Bash subshell or repeated re-discovery; (iii) the surface output is meant to read as one continuous flow, not two distinct command invocations stitched together.
+
+Choice rationale: the migration loop is already prompt-driven and the pdeq-migrate.md prompt is short enough (~150 lines) that duplicating the relevant Steps 4–5 inside pdeq-update.md is cheaper than designing a delegation protocol. The duplication is bounded — the shared logic lives in `scripts/migrate.sh` subcommands, which both prompts call identically. If the migrate prompt grows substantially in the future, a `scripts/migrate.sh run-loop` umbrella subcommand could be introduced and both prompts call it — but that refactor is deferred until needed.
+
+`pdeq-update.md` reuses Surface 5 (mid-migration failure) verbatim — the chained run is not re-skinned. If a migration fails after a successful bump, the failing block's `✗` line is printed at the chained-region's two-space indent (so it stays visually attached to its `▸ <version>` migration header), then the runner emits a single blank line, **drops the indent prefix**, and prints Surface 5's `✗ Migration X.Y.Z failed at the <block> step.` summary plus its `pdeq: recorded …` / `Pinned pdeq version: …` / `Remaining: …` / `What to do:` recovery text left-aligned. The final `✓ pdeq: updated to …` summary is not printed — the run failed. Implementation note: the inline-reuse loop carries the indent as a prefix string (`"  "`) it prepends to each emitted line; on chained failure, the prefix is reset to empty after the failing-block line is emitted, before the Surface 5 summary block runs. The user fixes the cause and re-runs `/pdeq-update`; on re-run the bump step short-circuits to no-op (pin already at `POST_PINNED`), the migration loop resumes from the last fully-applied migration via the existing per-migration bump semantics. No bespoke recovery path needed.
+
+Satisfies `FR-migrations-update-chains`, `AC-migrations-update-end-to-end`.
+
+### In-session command availability
+
+This is the novel piece. Two sub-problems:
+
+#### 1. Symlink sync after the bump
+
+Today, `init.sh` Steps 5–6 symlink every `*` in `.pdeq/scripts/` and `.pdeq/.claude/commands/` into `<git-root>/scripts/` and `<git-root>/.claude/commands/`. The symlink targets are relative paths into the submodule (e.g., `scripts/migrate.sh -> ../.pdeq/scripts/migrate.sh`), so when `git submodule update --remote` advances `.pdeq/`, the symlink targets resolve to the **new** files automatically — **modified** commands and scripts pick up content changes for free with no re-symlinking.
+
+The problem is **new** files: a bumped pdeq version that introduces, say, `.pdeq/.claude/commands/foo.md` and `.pdeq/scripts/foo.sh` ships those into the submodule, but `<git-root>/.claude/commands/foo.md` and `<git-root>/scripts/foo.sh` do not exist yet — no symlink, no command. Conversely, **deleted** files leave dangling symlinks (the target no longer exists in the new submodule content).
+
+The `/pdeq-update` runner handles both cases by re-running the same idempotent symlink loop init.sh already implements, between the bump and the migration loop:
+
+```bash
+# Sync symlinks after the bump. This mirrors init.sh Steps 5 and 6 but is
+# idempotent — every iteration uses the `[[ -e || -L ]]` guard from init.sh
+# to skip already-linked files.
+
+NEW_COMMANDS=()
+NEW_SCRIPTS=()
+
+# Step A: scripts/
+for src in .pdeq/scripts/*; do
+  name=$(basename "$src")
+  dest="scripts/$name"
+  if [[ ! -e "$dest" && ! -L "$dest" ]]; then
+    ln -s "../.pdeq/scripts/$name" "$dest"
+    NEW_SCRIPTS+=("$name")
+  fi
+done
+
+# Step B: .claude/commands/
+for src in .pdeq/.claude/commands/*; do
+  name=$(basename "$src")
+  dest=".claude/commands/$name"
+  if [[ ! -e "$dest" && ! -L "$dest" ]]; then
+    ln -s "../../.pdeq/.claude/commands/$name" "$dest"
+    NEW_COMMANDS+=("$name")
+  fi
+done
+
+# Step C: prune dangling symlinks (deleted commands/scripts)
+DELETED_COMMANDS=()
+for dest in .claude/commands/*; do
+  if [[ -L "$dest" && ! -e "$dest" ]]; then
+    rm "$dest"
+    DELETED_COMMANDS+=("$(basename "$dest")")
+  fi
+done
+DELETED_SCRIPTS=()
+for dest in scripts/*; do
+  if [[ -L "$dest" && ! -e "$dest" ]]; then
+    rm "$dest"
+    DELETED_SCRIPTS+=("$(basename "$dest")")
+  fi
+done
+```
+
+We **do** clean up dangling symlinks (Step C). Leaving them is worse than the alternative — a dangling `.claude/commands/foo.md` symlink can confuse the harness's command discovery and a dangling `scripts/foo.sh` is an obvious foot-gun for any `for f in scripts/*; do …` consumer code. Pruning is cheap, idempotent, and bounded to symlinks-only (`-L` test) so a consumer's hand-authored real file at the same path is never touched.
+
+**Factoring decision.** This logic is duplicated between init.sh Steps 5–6 and the update runner's sync step. We factor it into a new helper `scripts/sync-symlinks.sh` with one entry point:
+
+```
+scripts/sync-symlinks.sh
+  --pdeq-dir <path-to-submodule>     # default ".pdeq"
+  --git-root <path>                  # default $(git rev-parse --show-toplevel)
+  --prune                            # also prune dangling symlinks (default off)
+  --json                             # emit a JSON report of {created, deleted}
+                                     # for the runner to parse — when omitted,
+                                     # output is in the init.sh green/skip style
+```
+
+`init.sh` calls `scripts/sync-symlinks.sh` without `--prune` (initial install never has anything to prune) and without `--json` (so its output matches the existing green/skip cosmetic). `pdeq-update.md`'s prompt calls `scripts/sync-symlinks.sh --prune --json` and parses the report into the `New commands available:` / `Updated commands:` / final-summary lists. Existing init.sh Steps 5 and 6 are rewritten as a single call to this helper for parity.
+
+Satisfies `FR-migrations-update-in-session` (mechanism part).
+
+#### 2. Harness re-reads commands from disk lazily
+
+Claude Code's harness (this assistant) reads slash command definitions from `.claude/commands/*.md` **at session start** to populate the autocomplete menu, but reads the file **content** lazily — only when the command is actually invoked. This means:
+
+- A command file that **already existed** at session start and is **modified** by the bump (its symlink target now points to new content): invocable in the same session with the new behavior. The user does not need to restart.
+- A command file that **did not exist** at session start and is **created** by the symlink sync: the autocomplete menu does not show it for the rest of the current session, **but invoking it by literal slash-name (`/foo`)** triggers fresh disk lookup and works. The harness does not maintain a deny-list of "commands that didn't exist at startup"; absence is checked on-demand via filesystem read.
+- A command file that existed at session start and is deleted: subsequent invocations 404 cleanly, matching the deleted-symlink prune behavior above.
+
+This was verified empirically (test: create `.claude/commands/test-fresh.md` mid-session, type `/test-fresh`; the command runs). The autocomplete-staleness tradeoff is acceptable — design Surface 12's `New commands available: /foo, /bar` final summary line tells the user the exact names to type, which means the user does not depend on autocomplete to discover them. We document this in the runner output and rely on the user reading the summary line.
+
+The relevant text the runner prints, drawn from the JSON report and matching design Surface 12:
+
+```
+✓ pdeq: updated to <POST_PINNED>
+  New commands available: /<name>, /<name>
+  Updated commands: /<name>
+  Review the diff before committing.
+```
+
+If both `NEW_COMMANDS` and the set of file-content-changed commands (computed via `git -C .pdeq diff --name-only $PRE_PIN_SHA $POST_PIN_SHA -- '.claude/commands/*.md'`) are empty, both lines are omitted and the summary collapses to just `✓ pdeq: updated to <POST_PINNED>` and the diff-reminder line. If only `NEW_COMMANDS` is empty but updated commands exist, only `Updated commands:` is printed, etc.
+
+**No process-restart hint is needed.** Earlier drafts of this spec considered printing `(restart your session to see these in autocomplete)` after the new-commands line, but this is misleading: the commands are *invocable* immediately by typing the name. Autocomplete is a discovery affordance, not a correctness condition. We omit the hint to keep the surface uncluttered.
+
+Satisfies `FR-migrations-update-in-session`, `AC-migrations-update-in-session`.
+
+### Self-host context
+
+Inside the pdeq repo itself, `/pdeq-update` behaves differently from a consumer because pdeq's `.pdeq/` submodule is intentionally pinned to a previous-stable version (N-1) for the bootstrap chain — bumping it to whatever is on `main` would defeat the dogfood property (see §Bootstrap chain). Two options were considered:
+
+- **Refuse with a maintainer-flow hint (chosen).** Inside the pdeq repo, `/pdeq-update` detects self-host context (presence of root-level `VERSION` and a `.pdeq/` submodule whose remote URL matches the current repo, computed via `git config --file .gitmodules submodule..pdeq.url` and comparing to `git config --get remote.origin.url`) and prints a refusal:
+
+  ```
+  ✗ /pdeq-update is disabled inside the pdeq repository.
+
+    The pdeq repo's .pdeq/ submodule is intentionally pinned to a previous-stable
+    version for the bootstrap chain — see CLAUDE.md §Bootstrap chain.
+
+    Maintainer flow:
+      1. Cut a release: bump VERSION, author migrations/<version>.md, tag.
+      2. After the new release is tagged, manually advance .pdeq/ to N-1
+         (the version just before this one) and run /pdeq-migrate against pdeq's
+         own specs.
+
+    /pdeq-update will not run. No files changed.
+  ```
+
+  Exit 2.
+
+- **Bump `.pdeq/` to next-stable-N-1.** Rejected. It conflates the maintainer's deliberate "I am cutting a release and advancing the dogfood pin" workflow with the consumer's "I want the latest" workflow. The former is sequenced (release first, then advance pin, then self-migrate); the latter is one-shot. Hiding the maintainer flow behind a consumer-shaped command obscures the bootstrap chain rather than honoring it.
+
+The self-host detection check is wrapped in a single guard at the top of `pdeq-update.md`'s prompt body, before any bump work begins. The detection is conservative — if the URL comparison is ambiguous (e.g., `.gitmodules` is missing), default to consumer behavior (running `/pdeq-update` in a consumer project that for some reason lacks `.gitmodules` is an unusual but recoverable state; refusing inside a pdeq fork that has a slightly different remote URL would be a worse failure mode).
+
+Satisfies `FR-migrations-update-command` (self-host edge case).
+
+### `/pdeq-update` slash command markdown — structural outline
+
+`.claude/commands/pdeq-update.md` follows the `pdeq-migrate.md` shape:
+
+1. **Header** — `# Update: $ARGUMENTS` and one-sentence description.
+2. **Step 0: Parse arguments.** `--dry-run` only.
+3. **Step 0b: Self-host guard.** Detect pdeq-repo context; refuse with the message above if matched.
+4. **Step 1: Capture pre-bump state.** `PRE_PIN_SHA`, `PRE_PINNED`. Print the opening status line `pdeq: pinned <PRE_PINNED> → available …` (in dry-run, append `[DRY RUN — no writes]`).
+5. **Step 2: Advance the pin (or, in dry-run, fetch-only to learn the target).**
+   - Real run: `git submodule update --remote --force .pdeq`. Failure → Surface 14, exit 1.
+   - Dry-run: first, check for partial-failure recovery state — if `scripts/migrate.sh recorded` < `scripts/migrate.sh pinned` AND `scripts/migrate.sh list-pending` is non-empty, the project is in a Surface 5 mid-recovery state. Print the design Surface 13 "Dry-run refused during partial-failure recovery" output (recorded, pinned, pending list, "run /pdeq-migrate first" hint), exit 1, do not run `git fetch`. Otherwise: `git -C .pdeq fetch && git -C .pdeq rev-parse origin/HEAD` to learn the would-be target without checking it out. Print the would-advance line. Skip Steps 3 and 4 entirely; print Surface 13 trailer; exit 0. Detection reuses `scripts/migrate.sh recorded`, `pinned`, and `list-pending` — no new helper subcommand is required, and the refusal happens before any network work so an offline mid-recovery consumer still gets a clear message rather than a network-error surface.
+6. **Step 3: Detect no-op.** If `PRE_PIN_SHA == POST_PIN_SHA`, print Surface 11 `~ Already at <POST_PINNED>` and exit 0.
+7. **Step 4: Sync symlinks.** Invoke `scripts/sync-symlinks.sh --prune --json`, parse the report into `NEW_COMMANDS`, `DELETED_COMMANDS`, `NEW_SCRIPTS`, `DELETED_SCRIPTS`. Compute updated-commands set from the submodule diff.
+8. **Step 5: Chain into migration loop.** Print `▸ Migrating` lead-in. Inline-execute the equivalent of `pdeq-migrate.md` Steps 1–5 with two-space added indentation. On `/pdeq-migrate` failure → Surface 5 (within the `▸ Migrating` block); the runner exits 1 there. The bump is **not** undone — the user fixes the cause and re-runs `/pdeq-update`, which short-circuits the bump (Step 3) and resumes the migration loop.
+9. **Step 6: Final summary.** Print `✓ pdeq: updated to <POST_PINNED>` plus the conditional `New commands available:` / `Updated commands:` lines plus the diff reminder.
+
+Argument forms (`/pdeq-update`, `/pdeq-update --dry-run`) and exit codes (0 success/no-op/dry-run, 1 bump or migrate failure, 2 self-host refusal) match the design surfaces 1:1.
+
+Satisfies `FR-migrations-update-command`, `FR-migrations-update-bumps-pin`, `FR-migrations-update-chains`, `FR-migrations-update-in-session`, `FR-migrations-update-noop`, `FR-migrations-update-bump-failure`, `FR-migrations-update-dry-run`.
 
 ## init.sh changes
 
@@ -467,7 +698,7 @@ Three changes, all minimal:
 
 3. **Symlink `migrations/`** so consumers can reach migration files through the same symlink pattern used for scripts and commands. The existing `Step 5` already symlinks `scripts/*`; migrations live in `.pdeq/migrations/` directly (accessed by the runner via `$PDEQ_MIGRATIONS_DIR=.pdeq/migrations/`). **No symlink is needed** — the runner reads migration files from the submodule path directly, the same way it would read any other submodule content. This simplifies init.sh and matches how the design spec describes `.pdeq/migrations/<version>.md`.
 
-init.sh-level VERSION handling: if `.pdeq/VERSION` is missing (e.g., installing against a pre-v0.2.0 submodule), `pdeqVersion` is emitted as empty string — the `/migrate` precondition handler then walks the consumer through the absent-version flow on their first upgrade attempt.
+init.sh-level VERSION handling: if `.pdeq/VERSION` is missing (e.g., installing against a pre-v0.2.0 submodule), `pdeqVersion` is emitted as empty string — the `/pdeq-migrate` precondition handler then walks the consumer through the absent-version flow on their first upgrade attempt.
 
 Satisfies `FR-migrations-version-field`, `FR-migrations-absent-version`.
 
@@ -478,7 +709,7 @@ The explicit schema edit:
 ```json
 "pdeqVersion": {
   "type": "string",
-  "description": "Pdeq version that this project's specs and config conform to. Set by scripts/init.sh on install and updated by /migrate. A missing value means the project predates the migrations feature.",
+  "description": "Pdeq version that this project's specs and config conform to. Set by scripts/init.sh on install and updated by /pdeq-migrate. A missing value means the project predates the migrations feature.",
   "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
   "examples": ["0.2.0", "0.4.0", "1.0.0"]
 }
@@ -498,7 +729,7 @@ QA's fixture-based tests need to point the runner at canned state. Five env over
 - **`PDEQ_SEMANTIC_AGENT`** — path to a stub executable invoked by the orchestrator in place of a live Claude semantic pass. When set, the orchestrator runs `$PDEQ_SEMANTIC_AGENT` with the migration's `### Files` globs expanded on stdin and the `### Prompt` as an argv/stdin payload; the stub's exit code and stdout determine the semantic block's result. When unset (default), the orchestrator performs the normal inline agent pass. QA uses this to make semantic-block behavior deterministic across runs.
 - **`PDEQ_LINEAGE_FILE`** — overrides lineage detection for `check-lineage`. When set, its contents are a newline-delimited list of versions considered in-lineage; `check-lineage` treats any version outside this list as foreign. When unset (default), `check-lineage` reads `git -C .pdeq tag --list`. QA uses this to fake foreign-lineage conditions without manipulating git.
 
-All overrides are read at the start of every `scripts/migrate.sh` subcommand invocation and every `/migrate` orchestrator step. They compose: a fixture test sets the relevant subset to point inside a `qa/fixtures/migrations/happy-path/` directory containing a canned `pdeq.json` and a handful of named migration markdown files, then invokes `scripts/migrate.sh list-pending` or the end-to-end flow.
+All overrides are read at the start of every `scripts/migrate.sh` subcommand invocation and every `/pdeq-migrate` orchestrator step. They compose: a fixture test sets the relevant subset to point inside a `qa/fixtures/migrations/happy-path/` directory containing a canned `pdeq.json` and a handful of named migration markdown files, then invokes `scripts/migrate.sh list-pending` or the end-to-end flow.
 
 Example fixture shape:
 
@@ -520,7 +751,7 @@ qa/cli/fixtures/migrations/
     ...
 ```
 
-QA can invoke the runner end-to-end by `PDEQ_CONFIG_PATH=.../happy-path/pdeq.json PDEQ_MIGRATIONS_DIR=.../happy-path/migrations ./scripts/migrate.sh list-pending` and assert output. The `/migrate` slash command itself is harder to unit-test because it runs in Claude's context; QA tests the shell subcommands directly and validates the orchestration manually or via recorded-run comparison.
+QA can invoke the runner end-to-end by `PDEQ_CONFIG_PATH=.../happy-path/pdeq.json PDEQ_MIGRATIONS_DIR=.../happy-path/migrations ./scripts/migrate.sh list-pending` and assert output. The `/pdeq-migrate` slash command itself is harder to unit-test because it runs in Claude's context; QA tests the shell subcommands directly and validates the orchestration manually or via recorded-run comparison.
 
 Satisfies fixture needs for all `AC-migrations-*` that can be exercised without a live Claude session (all of them except `AC-migrations-semantic-context`, which needs a recorded agent pass).
 
@@ -530,13 +761,13 @@ Ordered to keep each step independently commit-worthy and leave the tree green b
 
 1. **Tag baseline `v0.1.0`.** Before any migrations code lands. Establishes the pre-feature version so the first real migration (v0.2.0) has something to migrate from. No file changes in pdeq itself.
 2. **Add `VERSION` file and schema field.** `VERSION` = `0.2.0`; `pdeq.schema.json` gains `pdeqVersion`. Pure additive; no behavior change yet. The traceability audit stays green because no slugs are referenced.
-3. **Write `scripts/migrate.sh`.** Implement all subcommands (`recorded`, `pinned`, `list-pending`, `parse`, `bump`, `check-lineage`, `audit-scope`). Unit-testable by shell harness. No `/migrate` command yet — the script is usable standalone.
-4. **Write `.claude/commands/migrate.md`.** The orchestrator. Invokes the Step 3 helpers. At this point `/migrate` works end-to-end for pure-mechanical migrations.
+3. **Write `scripts/migrate.sh`.** Implement all subcommands (`recorded`, `pinned`, `list-pending`, `parse`, `bump`, `check-lineage`, `audit-scope`). Unit-testable by shell harness. No `/pdeq-migrate` command yet — the script is usable standalone.
+4. **Write `.claude/commands/pdeq-migrate.md`.** The orchestrator. Invokes the Step 3 helpers. At this point `/pdeq-migrate` works end-to-end for pure-mechanical migrations.
 5. **Update `scripts/init.sh`.** Always emit `pdeq.json`, populate `pdeqVersion` from `.pdeq/VERSION`. Consumers upgrading init get a correctly-versioned config.
 6. **Write `scripts/audit-migrations.sh`** and document the `commit-msg` hook composition. Breaking-change gate is now in place for subsequent pdeq development.
 7. **Author `migrations/0.2.0.md`.** The first real migration. Adds `pdeqVersion: 0.2.0` to the consumer's `pdeq.json` — this is the on-ramp from pre-migrations projects. Mechanical block handles the edit idempotently.
 8. **Tag `v0.2.0`** and add pdeq to itself as a submodule pinned to `v0.1.0`. Initialize pdeq's own `pdeq.json` with `pdeqVersion: 0.1.0`. At this point the bootstrap chain exists.
-9. **First self-migration dry-run.** Run `/migrate --dry-run` against pdeq's own specs. Should surface the 0.2.0 migration. Validates the dogfood path before any subsequent release.
+9. **First self-migration dry-run.** Run `/pdeq-migrate --dry-run` against pdeq's own specs. Should surface the 0.2.0 migration. Validates the dogfood path before any subsequent release.
 10. **Subsequent release:** when the next breaking change lands, the author follows the §Bootstrap chain release flow — writes `migrations/<version>.md`, bumps `VERSION`, the gate validates on commit, tag, bump self-pin, self-migrate.
 
 ## Open Technical Questions
@@ -557,14 +788,14 @@ Every product slug is addressed by some piece of this engineering approach.
 |---|---|
 | `FR-migrations-version-field` | §Schema change; §init.sh changes; §Data Model. |
 | `FR-migrations-version-readable` | `scripts/migrate.sh recorded` subcommand; §API. |
-| `FR-migrations-absent-version` | §State Management (absence semantics); `/migrate` Step 2 precondition check. |
+| `FR-migrations-absent-version` | §State Management (absence semantics); `/pdeq-migrate` Step 2 precondition check. |
 | `FR-migrations-one-per-version` | Filename convention `<version>.md`; `list-pending` logic. |
 | `FR-migrations-ordered` | Semver filename + `sort -V` in `list-pending`. |
 | `FR-migrations-mechanical-block` | `## Mechanical` section parsed by `parse` subcommand; executed by orchestrator Step 4. |
 | `FR-migrations-semantic-block` | `## Semantic` section parsed by `parse`; executed inline by orchestrator. |
 | `FR-migrations-order-within` | Orchestrator Step 4 runs Mechanical block before Semantic. |
 | `FR-migrations-author-written` | No auto-generation; migrations are markdown files in `migrations/`. |
-| `FR-migrations-explicit-run` | `/migrate` slash command is the only entry point; never auto-invoked. |
+| `FR-migrations-explicit-run` | `/pdeq-migrate` slash command is the only entry point; never auto-invoked. |
 | `FR-migrations-pending-detection` | `list-pending` subcommand logic. |
 | `FR-migrations-ordered-application` | Orchestrator iterates `list-pending` output in order. |
 | `FR-migrations-version-bump` | `bump` subcommand invoked after each successful migration. |
@@ -576,7 +807,7 @@ Every product slug is addressed by some piece of this engineering approach.
 | `FR-migrations-no-false-positive` | Gate only fires on framework-file + VERSION-bump commits; trailer override for deliberate non-breaking cases. |
 | `FR-migrations-lineage-integrity` | `check-lineage` subcommand. |
 | `FR-migrations-bootstrap-chain` | §Bootstrap chain — N-1 pin. |
-| `FR-migrations-self-migration` | §Bootstrap chain release flow uses `/migrate` verbatim against pdeq's own specs. |
+| `FR-migrations-self-migration` | §Bootstrap chain release flow uses `/pdeq-migrate` verbatim against pdeq's own specs. |
 | `FR-migrations-atomic-bump` | Per-migration bump (not whole-run) strategy. |
 | `FR-migrations-failure-report` | Orchestrator Surface 5 output; `bump` not called for failing migration. |
 | `FR-migrations-recoverable-partial` | Leave-as-is recovery policy; no rollback code path. |
@@ -596,11 +827,23 @@ Every product slug is addressed by some piece of this engineering approach.
 | `AC-migrations-absent-reported` | Precondition check prints Surface 6 sub-case 1 and exits. |
 | `AC-migrations-lineage-refused` | `check-lineage` exit non-zero → Surface 6 sub-case 3. |
 | `AC-migrations-scope-respected` | Default `scope: default` + `audit-scope` subcommand. |
-| `AC-migrations-self-migration-runs` | `/migrate` invoked against pdeq's own specs at release time (§Bootstrap chain). |
+| `AC-migrations-self-migration-runs` | `/pdeq-migrate` invoked against pdeq's own specs at release time (§Bootstrap chain). |
 | `FR-migrations-nonbreaking-advance` | §Non-breaking advance — direct bump when no files in window. |
 | `AC-migrations-nonbreaking-advance` | §Non-breaking advance + orchestrator Surface 3b path. |
 | `FR-migrations-missing-file-refused` | §Missing-file detection — lineage-breaking enumeration against migrations dir. |
 | `AC-migrations-missing-file-refused` | §Missing-file detection + Surface 6 missing-file sub-case. |
+| `FR-migrations-update-command` | §Upgrade Entrypoint — `/pdeq-update` slash command at `.claude/commands/pdeq-update.md`, prompt-driven runner. |
+| `FR-migrations-update-bumps-pin` | §Upgrade Entrypoint → Bump implementation — `git submodule update --remote .pdeq` from `pdeq-update.md`. |
+| `FR-migrations-update-chains` | §Upgrade Entrypoint → Chained migration (approach A, inline reuse). |
+| `FR-migrations-update-in-session` | §Upgrade Entrypoint → In-session command availability — `scripts/sync-symlinks.sh --prune` + harness lazy command lookup. |
+| `FR-migrations-update-noop` | §Upgrade Entrypoint → Bump implementation, step 4 (SHA-equality short-circuit). |
+| `FR-migrations-update-bump-failure` | §Upgrade Entrypoint → Bump implementation, step 5 (failure-mode table); Surface 14 output. |
+| `FR-migrations-update-dry-run` | §Upgrade Entrypoint → command shape (`--dry-run`); §`/pdeq-update` slash command markdown step 2 (fetch-only path). |
+| `AC-migrations-update-end-to-end` | §Upgrade Entrypoint → Chained migration; Surface 12 happy-path. |
+| `AC-migrations-update-noop` | §Upgrade Entrypoint → Bump implementation, step 4. |
+| `AC-migrations-update-in-session` | §Upgrade Entrypoint → In-session command availability. |
+| `AC-migrations-update-bump-failure` | §Upgrade Entrypoint → Bump implementation, step 5. |
+| `AC-migrations-update-dry-run` | §Upgrade Entrypoint → `/pdeq-update` slash command markdown, step 2 dry-run path. |
 
 ## Summary of Files
 
@@ -609,20 +852,22 @@ Every product slug is addressed by some piece of this engineering approach.
 - `/Users/ldstreet/Development/pdeq/VERSION`
 - `/Users/ldstreet/Development/pdeq/scripts/migrate.sh`
 - `/Users/ldstreet/Development/pdeq/scripts/audit-migrations.sh`
-- `/Users/ldstreet/Development/pdeq/.claude/commands/migrate.md`
+- `/Users/ldstreet/Development/pdeq/scripts/sync-symlinks.sh` (planned)
+- `/Users/ldstreet/Development/pdeq/.claude/commands/pdeq-migrate.md`
+- `/Users/ldstreet/Development/pdeq/.claude/commands/pdeq-update.md` (planned)
 - `/Users/ldstreet/Development/pdeq/migrations/` (directory)
 - `/Users/ldstreet/Development/pdeq/migrations/0.2.0.md` (first authored migration)
 
 ### Modified
 
 - `/Users/ldstreet/Development/pdeq/pdeq.schema.json` — add `pdeqVersion` field **(schema change)**
-- `/Users/ldstreet/Development/pdeq/scripts/init.sh` — always emit `pdeq.json`, populate `pdeqVersion`
+- `/Users/ldstreet/Development/pdeq/scripts/init.sh` — always emit `pdeq.json`, populate `pdeqVersion`; refactor Steps 5–6 to call `scripts/sync-symlinks.sh`
 
 ## Code Map
 
 Code locations for every functional requirement. Rows marked `implemented` have
 at least one inline marker in the listed file; `planned` rows point at files
-that do not yet exist (the /migrate command file and audit-migrations.sh gate);
+that do not yet exist (the /pdeq-migrate command file and audit-migrations.sh gate);
 `unimplemented` rows are deliberately deferred.
 
 | Slug | Planned location | Status |
@@ -634,24 +879,31 @@ that do not yet exist (the /migrate command file and audit-migrations.sh gate);
 | FR-migrations-ordered | scripts/migrate.sh | implemented |
 | FR-migrations-mechanical-block | scripts/migrate.sh | implemented |
 | FR-migrations-semantic-block | scripts/migrate.sh | implemented |
-| FR-migrations-order-within | .claude/commands/migrate.md | implemented |
+| FR-migrations-order-within | .claude/commands/pdeq-migrate.md | implemented |
 | FR-migrations-author-written | migrations/TEMPLATE.md | implemented |
-| FR-migrations-explicit-run | .claude/commands/migrate.md | implemented |
+| FR-migrations-explicit-run | .claude/commands/pdeq-migrate.md | implemented |
 | FR-migrations-pending-detection | scripts/migrate.sh | implemented |
-| FR-migrations-ordered-application | .claude/commands/migrate.md | implemented |
+| FR-migrations-ordered-application | .claude/commands/pdeq-migrate.md | implemented |
 | FR-migrations-version-bump | scripts/migrate.sh | implemented |
 | FR-migrations-nonbreaking-advance | scripts/migrate.sh | implemented |
 | FR-migrations-noop-when-current | scripts/migrate.sh | implemented |
-| FR-migrations-dry-run | .claude/commands/migrate.md | implemented |
+| FR-migrations-dry-run | .claude/commands/pdeq-migrate.md | implemented |
 | FR-migrations-idempotent | migrations/TEMPLATE.md | implemented |
 | FR-migrations-scoped-writes | scripts/migrate.sh | implemented |
 | FR-migrations-breaking-gate | scripts/audit-migrations.sh | implemented |
 | FR-migrations-no-false-positive | scripts/audit-migrations.sh | implemented |
 | FR-migrations-lineage-integrity | scripts/migrate.sh | implemented |
 | FR-migrations-bootstrap-chain | — | unimplemented |
-| FR-migrations-self-migration | .claude/commands/migrate.md | implemented |
+| FR-migrations-self-migration | .claude/commands/pdeq-migrate.md | implemented |
 | FR-migrations-atomic-bump | scripts/migrate.sh | implemented |
-| FR-migrations-failure-report | .claude/commands/migrate.md | implemented |
+| FR-migrations-failure-report | .claude/commands/pdeq-migrate.md | implemented |
 | FR-migrations-recoverable-partial | scripts/migrate.sh | implemented |
 | FR-migrations-unknown-version | scripts/migrate.sh | implemented |
 | FR-migrations-missing-file-refused | scripts/migrate.sh | implemented |
+| FR-migrations-update-command | .claude/commands/pdeq-update.md | planned |
+| FR-migrations-update-bumps-pin | .claude/commands/pdeq-update.md | planned |
+| FR-migrations-update-chains | .claude/commands/pdeq-update.md | planned |
+| FR-migrations-update-in-session | .claude/commands/pdeq-update.md; scripts/sync-symlinks.sh | planned |
+| FR-migrations-update-noop | .claude/commands/pdeq-update.md | planned |
+| FR-migrations-update-bump-failure | .claude/commands/pdeq-update.md | planned |
+| FR-migrations-update-dry-run | .claude/commands/pdeq-update.md | planned |

@@ -2,7 +2,7 @@
 #
 # pdeq migrate — version math, file discovery, parsing, and version bump.
 #
-# Deterministic subcommands invoked by the /migrate slash command orchestrator.
+# Deterministic subcommands invoked by the /pdeq-migrate slash command orchestrator.
 # Every subcommand is non-interactive, prints to stdout for machine-readable
 # output, stderr for human-readable logs, and exits non-zero on error.
 #

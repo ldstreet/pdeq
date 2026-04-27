@@ -20,9 +20,9 @@ Or, if you already have PDEQ cloned locally:
 bash /path/to/pdeq/scripts/init.sh --pdeq-url /path/to/pdeq
 ```
 
-Then open Claude Code and run `/kickoff` to start your first feature.
+Then open Claude Code and run `/pdeq-kickoff` to start your first feature.
 
-**Adding PDEQ to an existing codebase?** See [docs/bootstrap.md](docs/bootstrap.md) or run `/bootstrap` in Claude Code.
+**Adding PDEQ to an existing codebase?** See [docs/bootstrap.md](docs/bootstrap.md) or run `/pdeq-bootstrap` in Claude Code.
 
 ---
 
@@ -82,7 +82,7 @@ git submodule add git@github.com:ldstreet/pdeq.git .pdeq
 bash .pdeq/scripts/init.sh --code-root src --platforms web --interactive
 ```
 
-Then run `/bootstrap` in Claude Code to analyze your existing code and generate draft specs. See [docs/bootstrap.md](docs/bootstrap.md) for the full walkthrough.
+Then run `/pdeq-bootstrap` in Claude Code to analyze your existing code and generate draft specs. See [docs/bootstrap.md](docs/bootstrap.md) for the full walkthrough.
 
 ### Nested install (monorepo package or feature subfolder)
 
@@ -113,12 +113,17 @@ git add .pdeq && git commit -m "update pdeq framework"
 
 Open Claude Code in your project and use:
 
+All pdeq-installed commands begin with the `pdeq-` prefix — type `/pdeq` and tab-complete to discover the full set.
+
 | Command | What it does |
 |---|---|
-| `/kickoff [description]` | Full feature kickoff: triages scope → product spec → design spec → engineering spec + QA plan in parallel → traceability + consistency checks |
-| `/bootstrap [--dry-run] [--feature name]` | Import an existing codebase: analyzes code → generates draft specs → updates index.md → prints review checklist |
-| `/impact [slug or feature]` | Shows every artifact that would need to change if a requirement is modified |
-| `/status` | Project dashboard: feature coverage across all four lanes, slug coverage, traceability gaps |
+| `/pdeq-kickoff [description]` | Full feature kickoff: triages scope → product spec → design spec → engineering spec + QA plan in parallel → traceability + consistency checks |
+| `/pdeq-bootstrap [--dry-run] [--feature name]` | Import an existing codebase: analyzes code → generates draft specs → updates index.md → prints review checklist |
+| `/pdeq-impact [slug or feature]` | Shows every artifact that would need to change if a requirement is modified |
+| `/pdeq-status` | Project dashboard: feature coverage across all four lanes, slug coverage, traceability gaps |
+| `/pdeq-migrate` | Apply pending pdeq migrations against this project |
+| `/pdeq-visualize <feature>` | Render a design spec to a self-contained HTML preview |
+| `/pdeq-update` | Bump the pinned pdeq version and chain into `/pdeq-migrate` in one flow |
 
 ---
 
@@ -174,7 +179,7 @@ For non-standard installs (nested, monorepo, separate code root), create `pdeq.j
 | Field | Type | Default | Description |
 |---|---|---|---|
 | `specsRoot` | string | `"."` | Path from `pdeq.json` to the directory containing `product/`, `design/`, etc. |
-| `codeRoot` | string | `"."` | Path to source code root (used by `/bootstrap`) |
+| `codeRoot` | string | `"."` | Path to source code root (used by `/pdeq-bootstrap`) |
 | `platforms` | string[] | — | Platform IDs — subfolders in `design/`, `engineering/`, `qa/` |
 | `pdeqDir` | string | `".pdeq"` | Path to the `.pdeq` submodule, relative to git root |
 | `nested.repoRoot` | string | — | Path up to the actual git root |
@@ -192,4 +197,4 @@ Full schema: [`pdeq.schema.json`](pdeq.schema.json)
 | `scripts/audit-lanes.sh` | Checks product specs for design/engineering bleed (pixel values, library names, etc.) |
 | `scripts/merge-decisions.sh` | Merges `decisions-pending.md` into `decisions.md` at commit time |
 | `scripts/init.sh` | Installs PDEQ into a project (submodule + `@` imports + symlinks + pdeq.json) |
-| `scripts/bootstrap.sh` | Validates bootstrap preconditions and resolves paths before `/bootstrap` runs |
+| `scripts/bootstrap.sh` | Validates bootstrap preconditions and resolves paths before `/pdeq-bootstrap` runs |

@@ -133,7 +133,7 @@ Roadmap entries are intentionally lightweight. They capture intent and direction
 ### Graduation flow
 
 When a roadmap item is ready for implementation:
-1. Run `/kickoff` on that item — this creates the proper product spec (with slugs), design, engineering, and QA artifacts.
+1. Run `/pdeq-kickoff` on that item — this creates the proper product spec (with slugs), design, engineering, and QA artifacts.
 2. Remove the item from the roadmap file. Delete the file if empty.
 
 ## Lane Discipline
@@ -394,11 +394,15 @@ Slash commands, command definitions, and hook behavior are covered in their resp
 
 ## Slash Commands
 
-The following custom commands are available:
+All pdeq-installed slash commands carry the `pdeq-` prefix (see `product/cli-conventions.md`). Typing `/pdeq` in the slash-command palette tab-completes the full set.
 
-- **`/kickoff [feature description]`** — Full feature kickoff. Checks `roadmap/` for an existing entry to pull context from, then determines target platform(s) and creates product spec → design spec → engineering spec → QA test plan (plus platform-specific variants as needed) → updates index, glossary, and pending decisions → runs review and consistency checks. If a roadmap entry was used, remove the corresponding item from `roadmap/<feature>.md` once the spec is minted.
-- **`/impact [slug or feature]`** — Impact analysis. Reads `index.md` to report every artifact that would need to change if a requirement is modified.
-- **`/status`** — Project dashboard. Scans all folders and reports feature coverage, slug coverage, and traceability gaps.
+- **`/pdeq-kickoff [feature description]`** — Full feature kickoff. Checks `roadmap/` for an existing entry to pull context from, then determines target platform(s) and creates product spec → design spec → engineering spec → QA test plan (plus platform-specific variants as needed) → updates index, glossary, and pending decisions → runs review and consistency checks. If a roadmap entry was used, remove the corresponding item from `roadmap/<feature>.md` once the spec is minted.
+- **`/pdeq-impact [slug or feature]`** — Impact analysis. Reads `index.md` to report every artifact that would need to change if a requirement is modified.
+- **`/pdeq-status`** — Project dashboard. Scans all folders and reports feature coverage, slug coverage, and traceability gaps.
+- **`/pdeq-bootstrap [--dry-run] [--feature name]`** — Import an existing codebase: analyzes code, generates draft specs, updates the traceability index, and prints a review checklist.
+- **`/pdeq-migrate`** — Apply pending pdeq migrations to bring the project into conformance with the pinned pdeq version.
+- **`/pdeq-visualize <feature>`** — Render a design spec to a self-contained HTML preview and open it in the browser.
+- **`/pdeq-update`** — Bump the pinned pdeq submodule and chain into `/pdeq-migrate` in one invocation.
 
 ## Quality Subagents
 
@@ -422,7 +426,7 @@ The consistency checker reads across all artifacts and checks for:
 - **Naming drift**: The same concept being called different things in different specs
 - **Slug integrity**: Slugs that are referenced but not defined, or defined but not referenced
 
-Invoke the consistency checker periodically, or as part of `/kickoff`.
+Invoke the consistency checker periodically, or as part of `/pdeq-kickoff`.
 
 ## Shared Project Files
 
