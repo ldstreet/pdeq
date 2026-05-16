@@ -2,7 +2,7 @@
 
 ## Overview
 
-Pdeq ships a set of slash commands that consumer projects invoke from inside Claude Code. Without a naming convention these commands collide with project-local slash commands and with commands installed by other tooling, and a maintainer browsing the slash-command palette has no way to tell at a glance which commands belong to pdeq. This spec records the convention that resolves both problems: every pdeq-installed slash command begins with the `pdeq-` prefix.
+Pdeq ships a set of slash commands that consumer projects invoke from their coding-agent harness's slash-command palette. Pdeq itself targets multiple harnesses (see `harness-agnostic.md` for the v1 set and the per-harness materialization contract), but the naming convention is single-source: every pdeq-installed slash command begins with the `pdeq-` prefix, regardless of which harness's commands directory the installer materialized the command file into. Without this convention, commands would collide with project-local slash commands and with commands installed by other tooling, and a maintainer browsing their harness's command palette would have no way to tell at a glance which commands belong to pdeq.
 
 The prefix is a product decision, not a styling choice. It defines the contract a consumer can rely on — typing `/pdeq` and tab-completing surfaces the entire pdeq command surface, and any command that does not start with `pdeq-` is by definition not a pdeq command.
 

@@ -17,7 +17,7 @@ This file maps every requirement slug to all files that define or reference it. 
 ## Index
 
 | Slug | Type | Defined In | Referenced In | Code |
-|------|------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|------|------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | FR-migrations-version-field | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, pdeq.schema.json, VERSION | scripts/init.sh:304 |
 | FR-migrations-version-readable | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:82, scripts/migrate.sh:95 |
 | FR-migrations-absent-version | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | scripts/migrate.sh:82 |
@@ -240,3 +240,67 @@ This file maps every requirement slug to all files that define or reference it. 
 | AC-cli-naming-listing | AC | product/cli-conventions.md |  |  |
 | AC-cli-naming-no-bare-name | AC | product/cli-conventions.md |  |  |
 | AC-cli-naming-migration-carries | AC | product/cli-conventions.md |  |  |
+| FR-harness-agnostic-config | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-v1-harness-set | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-multiple-per-install | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-unknown-rejected | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-canonical-agents-file | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-content-portable | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-no-import-in-canonical | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-per-harness-install | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-claude-import | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-symlink-include | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-commands-per-harness | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-commands-source-path | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-bootstrap-inline | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-no-subagent-files | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-skill-claude-only | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-migration | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-hard-cutover | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-migration-default-harness | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-migration-idempotent | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-migration-removes-subagents | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-harness-change-reinstall | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-removed-harness-cleaned | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| NFR-harness-agnostic-no-new-deps | NFR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| NFR-harness-agnostic-installer-reporting | NFR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| NFR-harness-agnostic-symlink-portability | NFR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| NFR-harness-agnostic-docs-multi-harness | NFR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md |  |
+| AC-harness-agnostic-default-claude | AC | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| AC-harness-agnostic-codex-install | AC | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| AC-harness-agnostic-pi-install | AC | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| AC-harness-agnostic-multi-install | AC | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| AC-harness-agnostic-unknown-init | AC | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| AC-harness-agnostic-unknown-schema | AC | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| AC-harness-agnostic-codex-no-commands | AC | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| AC-harness-agnostic-pi-no-commands | AC | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| AC-harness-agnostic-bootstrap-no-subagent | AC | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| AC-harness-agnostic-migration-end-to-end | AC | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| AC-harness-agnostic-migration-idempotent | AC | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| AC-harness-agnostic-migration-warns-customized | AC | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| AC-harness-agnostic-no-new-deps | AC | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| AC-harness-agnostic-remove-harness | AC | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| AC-harness-agnostic-installer-output | AC | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| AC-harness-agnostic-self-host-migrates | AC | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| TC-harness-agnostic-default-claude-resolved | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-codex-install-files | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-codex-symlink-content | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-pi-install-files | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-pi-symlink-content | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-multi-install-both-files | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-multi-install-canonical-edit-propagates | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-init-unknown-rejected | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-schema-unknown-rejected | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-codex-no-commands-dir | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-pi-no-commands-dir | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-bootstrap-no-subagent-files | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-bootstrap-prompts-inlined | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-migrate-cutover | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-migrate-bumps-version | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-migrate-rerun-noop | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-migrate-customized-subagent-warn | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-install-no-extra-toolchain | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-remove-harness-cleanup | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-remove-harness-preserves-authored | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-installer-names-harness-per-line | TC | qa/cli/harness-agnostic.md |  |  |
+| TC-harness-agnostic-self-host-migrate-clean | TC | qa/cli/harness-agnostic.md |  |  |
