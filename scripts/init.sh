@@ -82,12 +82,15 @@ done
 # ---------------------------------------------------------------------------
 # Detect install location
 # ---------------------------------------------------------------------------
-INSTALL_DIR="$(pwd)"
+# Canonicalize paths via `pwd -P` so macOS's /var ↔ /private/var alias
+# doesn't make INSTALL_DIR and GIT_ROOT compare unequal in _rel_depth
+# (which would then return an over-deep `../../../...` symlink target).
+INSTALL_DIR="$(pwd -P)"
 
 # Determine git root — either explicit (nested) or auto-detected
 if [[ -n "$OPT_NESTED_REPO_ROOT" ]]; then
   # Nested install: resolve the git root manually
-  GIT_ROOT="$(cd "$INSTALL_DIR/$OPT_NESTED_REPO_ROOT" && pwd)"
+  GIT_ROOT="$(cd "$INSTALL_DIR/$OPT_NESTED_REPO_ROOT" && pwd -P)"
   IS_NESTED=1
 else
   if ! git rev-parse --git-dir > /dev/null 2>&1; then
@@ -95,7 +98,7 @@ else
     echo "If this is a nested install, use --nested <path-to-repo-root>"
     exit 1
   fi
-  GIT_ROOT="$(git rev-parse --show-toplevel)"
+  GIT_ROOT="$(cd "$(git rev-parse --show-toplevel)" && pwd -P)"
   IS_NESTED=0
 fi
 
@@ -185,12 +188,18 @@ validate_harnesses() {
 # Implements: FR-harness-agnostic-claude-import
 # Implements: FR-harness-agnostic-symlink-include
 # Implements: NFR-harness-agnostic-installer-reporting
-# Args: <lane_abs_path> <import_relpath> <label>
-#   import_relpath points at the canonical AGENTS.md inside the submodule,
-#   relative to lane_abs_path (so Claude's @import line and other harnesses'
-#   symlink targets resolve to the same file).
+# Args: <lane_abs_path> <claude_import_relpath> <symlink_target_relpath> <label>
+#   - claude_import_relpath is the path written into a Claude @import wrapper.
+#     Claude resolves @-imports project-root-relatively, so this is the path
+#     from the project root to the canonical AGENTS.md.
+#   - symlink_target_relpath is the path for `ln -s`. The OS resolves symlink
+#     targets relative to the symlink's own directory, so this needs the right
+#     number of `../` segments to walk from lane_dir up to the project root
+#     before descending into the submodule.
+#   When both forms are equal (root-level lanes), the caller can pass the
+#   same string twice.
 _materialize_agent_file() {
-  local lane_dir="$1" import_path="$2" label="$3"
+  local lane_dir="$1" claude_import="$2" sym_target="$3" label="$4"
   local h fname dest
   for h in "${HARNESSES_ARR[@]}"; do
     fname=$(harness_agent_file "$h") || continue
@@ -203,10 +212,10 @@ _materialize_agent_file() {
     if [[ "$h" == "claude" ]]; then
       # Claude supports @import — emit a one-line wrapper file so the consumer
       # can append project-specific instructions below the import.
-      echo "@$import_path" > "$dest"
+      echo "@$claude_import" > "$dest"
     else
       # Other harnesses don't have @import; symlink directly to the canonical.
-      ln -s "$import_path" "$dest"
+      ln -s "$sym_target" "$dest"
     fi
     green "Created $label/$fname (harness: $h)"
     CREATED=$((CREATED + 1))
@@ -440,7 +449,17 @@ fi
 for area in product design engineering qa roadmap; do
   areadir="$SPECS_DIR/$area"
   mkdir -p "$areadir"
-  _materialize_agent_file "$areadir" "$PDEQ_IMPORT_PREFIX/$area/AGENTS.md" "$area"
+  # Claude @import: project-root-relative.
+  claude_import="$PDEQ_IMPORT_PREFIX/$area/AGENTS.md"
+  # Symlink target: filesystem-relative from the lane subfolder up to GIT_ROOT,
+  # then into the submodule + lane subfolder.
+  up_to_root="$(_rel_depth "$areadir" "$GIT_ROOT")"
+  if [[ -z "$up_to_root" ]]; then
+    sym_target="$PDEQ_DIR/$area/AGENTS.md"
+  else
+    sym_target="$up_to_root/$PDEQ_DIR/$area/AGENTS.md"
+  fi
+  _materialize_agent_file "$areadir" "$claude_import" "$sym_target" "$area"
 done
 
 # ---------------------------------------------------------------------------

@@ -13,24 +13,26 @@ The 0.4.0 transition of pdeq from a Claude-Code-only install to a multi-harness 
 
 ## Coverage Matrix
 
+Status reflects the most recent run of `scripts/test-harness-agnostic.sh` (the authoritative runner for this test plan). 20 cases Pass, 2 Skip with explicit justifications; no failures.
+
 | Requirement | Test Cases | Status |
 |---|---|---|
-| `AC-harness-agnostic-default-claude` | `TC-harness-agnostic-default-claude-resolved` | Not started |
-| `AC-harness-agnostic-codex-install` | `TC-harness-agnostic-codex-install-files`, `TC-harness-agnostic-codex-symlink-content` | Not started |
-| `AC-harness-agnostic-pi-install` | `TC-harness-agnostic-pi-install-files`, `TC-harness-agnostic-pi-symlink-content` | Not started |
-| `AC-harness-agnostic-multi-install` | `TC-harness-agnostic-multi-install-both-files`, `TC-harness-agnostic-multi-install-canonical-edit-propagates` | Not started |
-| `AC-harness-agnostic-unknown-init` | `TC-harness-agnostic-init-unknown-rejected` | Not started |
-| `AC-harness-agnostic-unknown-schema` | `TC-harness-agnostic-schema-unknown-rejected` | Not started |
-| `AC-harness-agnostic-codex-no-commands` | `TC-harness-agnostic-codex-no-commands-dir` | Not started |
-| `AC-harness-agnostic-pi-no-commands` | `TC-harness-agnostic-pi-no-commands-dir` | Not started |
-| `AC-harness-agnostic-bootstrap-no-subagent` | `TC-harness-agnostic-bootstrap-no-subagent-files`, `TC-harness-agnostic-bootstrap-prompts-inlined` | Not started |
-| `AC-harness-agnostic-migration-end-to-end` | `TC-harness-agnostic-migrate-cutover`, `TC-harness-agnostic-migrate-bumps-version` | Not started |
-| `AC-harness-agnostic-migration-idempotent` | `TC-harness-agnostic-migrate-rerun-noop` | Not started |
-| `AC-harness-agnostic-migration-warns-customized` | `TC-harness-agnostic-migrate-customized-subagent-warn` | Not started |
-| `AC-harness-agnostic-no-new-deps` | `TC-harness-agnostic-install-no-extra-toolchain` | Not started |
-| `AC-harness-agnostic-remove-harness` | `TC-harness-agnostic-remove-harness-cleanup`, `TC-harness-agnostic-remove-harness-preserves-authored` | Not started |
-| `AC-harness-agnostic-installer-output` | `TC-harness-agnostic-installer-names-harness-per-line` | Not started |
-| `AC-harness-agnostic-self-host-migrates` | `TC-harness-agnostic-self-host-migrate-clean` | Not started |
+| `AC-harness-agnostic-default-claude` | `TC-harness-agnostic-default-claude-resolved` | Pass |
+| `AC-harness-agnostic-codex-install` | `TC-harness-agnostic-codex-install-files`, `TC-harness-agnostic-codex-symlink-content` | Pass |
+| `AC-harness-agnostic-pi-install` | `TC-harness-agnostic-pi-install-files`, `TC-harness-agnostic-pi-symlink-content` | Pass |
+| `AC-harness-agnostic-multi-install` | `TC-harness-agnostic-multi-install-both-files`, `TC-harness-agnostic-multi-install-canonical-edit-propagates` | Pass |
+| `AC-harness-agnostic-unknown-init` | `TC-harness-agnostic-init-unknown-rejected` | Pass |
+| `AC-harness-agnostic-unknown-schema` | `TC-harness-agnostic-schema-unknown-rejected` | Pass |
+| `AC-harness-agnostic-codex-no-commands` | `TC-harness-agnostic-codex-no-commands-dir` | Pass |
+| `AC-harness-agnostic-pi-no-commands` | `TC-harness-agnostic-pi-no-commands-dir` | Pass |
+| `AC-harness-agnostic-bootstrap-no-subagent` | `TC-harness-agnostic-bootstrap-no-subagent-files`, `TC-harness-agnostic-bootstrap-prompts-inlined` | Pass |
+| `AC-harness-agnostic-migration-end-to-end` | `TC-harness-agnostic-migrate-cutover` (Pass), `TC-harness-agnostic-migrate-bumps-version` (Skip — version bump is `scripts/migrate.sh`'s responsibility, covered by `TC-migrations-version-bump-success` in `qa/cli/migrations.md`) | Pass / Skip |
+| `AC-harness-agnostic-migration-idempotent` | `TC-harness-agnostic-migrate-rerun-noop` | Pass |
+| `AC-harness-agnostic-migration-warns-customized` | `TC-harness-agnostic-migrate-customized-subagent-warn` | Pass |
+| `AC-harness-agnostic-no-new-deps` | `TC-harness-agnostic-install-no-extra-toolchain` | Pass |
+| `AC-harness-agnostic-remove-harness` | `TC-harness-agnostic-remove-harness-cleanup`, `TC-harness-agnostic-remove-harness-preserves-authored` | Pass |
+| `AC-harness-agnostic-installer-output` | `TC-harness-agnostic-installer-names-harness-per-line` | Pass |
+| `AC-harness-agnostic-self-host-migrates` | `TC-harness-agnostic-self-host-migrate-clean` | Skip — release-tag-time operational step; running `/pdeq-migrate` against pdeq's own checkout would mutate the live source tree and is out of scope for the smoke runner. The pdeq maintainer executes this step manually before tagging 0.4.0. |
 
 ## Test Cases
 
