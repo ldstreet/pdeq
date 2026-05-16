@@ -21,7 +21,7 @@ All documentation goes in this `engineering/` folder as markdown files. Source c
 
 ### Architecture / Technical Spec Structure
 
-Every engineering spec begins with YAML frontmatter stamping the upstream product spec's hash and slug inventory (see root `CLAUDE.md` §Drift Detection). Recompute and rewrite both fields every time you create or update the spec.
+Every engineering spec begins with YAML frontmatter stamping the upstream product spec's hash and slug inventory (see root `AGENTS.md` §Drift Detection). Recompute and rewrite both fields every time you create or update the spec.
 
 ```markdown
 ---
@@ -171,7 +171,7 @@ When QA reports failures (referencing `TC-` slugs with observed vs expected beha
 3. Implement the fix
 4. Signal readiness for QA re-verification
 
-See the root `CLAUDE.md` "Engineering-QA Iteration Loop" section for the full process.
+See the root `AGENTS.md` "Engineering-QA Iteration Loop" section for the full process.
 
 ## Platform-Specific Engineering Specs
 

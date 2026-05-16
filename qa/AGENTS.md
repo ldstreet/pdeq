@@ -22,7 +22,7 @@ All artifacts go in this `qa/` folder as markdown files. Name them to match the 
 
 ### Test Plan Structure
 
-Every test plan begins with YAML frontmatter stamping the upstream product spec's hash and slug inventory (see root `CLAUDE.md` §Drift Detection). Recompute and rewrite both fields every time you create or update the spec. `TC-` slugs are QA-owned and do **not** appear in `product-slugs`.
+Every test plan begins with YAML frontmatter stamping the upstream product spec's hash and slug inventory (see root `AGENTS.md` §Drift Detection). Recompute and rewrite both fields every time you create or update the spec. `TC-` slugs are QA-owned and do **not** appear in `product-slugs`.
 
 ```markdown
 ---
@@ -98,7 +98,7 @@ For failures, add a **Test Execution Results** subsection under the relevant tes
 
 ## The Eng-QA Loop
 
-After reporting failures, hand off to engineering with the list of failing `TC-` slugs and observed vs expected behavior. After engineering fixes the issues, re-verify by running the tests again. Loop until all tests pass. See the root `CLAUDE.md` "Engineering-QA Iteration Loop" section for the full process.
+After reporting failures, hand off to engineering with the list of failing `TC-` slugs and observed vs expected behavior. After engineering fixes the issues, re-verify by running the tests again. Loop until all tests pass. See the root `AGENTS.md` "Engineering-QA Iteration Loop" section for the full process.
 
 ## Platform-Specific Test Plans
 

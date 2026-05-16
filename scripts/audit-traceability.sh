@@ -67,7 +67,7 @@ warnf() {
 collect_defined_slugs() {
   local dir="$1"
   if [ ! -d "$dir" ]; then return; fi
-  find "$dir" -name "*.md" -not -name "CLAUDE.md" -print0 2>/dev/null \
+  find "$dir" -name "*.md" -not -name "CLAUDE.md" -not -name "AGENTS.md" -print0 2>/dev/null \
     | xargs -0 grep -hoE '`(FR-[a-z0-9-]+|NFR-[a-z0-9-]+|AC-[a-z0-9-]+)`' 2>/dev/null \
     | tr -d '`' | sort -u || true
 }
@@ -77,8 +77,8 @@ collect_referenced_slugs() {
   if [ ! -d "$dir" ]; then return; fi
   # Filter out the `FR-ex-*` / `NFR-ex-*` / `AC-ex-*` / `TC-ex-*` example-slug
   # convention — these are placeholders used in fixture descriptions, prose
-  # examples, or rename-example sections. Documented in root CLAUDE.md.
-  find "$dir" -name "*.md" -not -name "CLAUDE.md" -print0 2>/dev/null \
+  # examples, or rename-example sections. Documented in root AGENTS.md.
+  find "$dir" -name "*.md" -not -name "CLAUDE.md" -not -name "AGENTS.md" -print0 2>/dev/null \
     | xargs -0 grep -hoE '`(FR-[a-z0-9-]+|NFR-[a-z0-9-]+|AC-[a-z0-9-]+|TC-[a-z0-9-]+)`' 2>/dev/null \
     | tr -d '`' \
     | grep -vE '^(FR|NFR|AC|TC)-ex-' \

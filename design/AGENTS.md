@@ -19,7 +19,7 @@ All artifacts go in this `design/` folder as markdown files. Name them to match 
 
 ### Design Spec Structure
 
-Every design spec begins with YAML frontmatter stamping the upstream product spec's hash and slug inventory (see root `CLAUDE.md` §Drift Detection). Recompute and rewrite both fields every time you create or update the spec.
+Every design spec begins with YAML frontmatter stamping the upstream product spec's hash and slug inventory (see root `AGENTS.md` §Drift Detection). Recompute and rewrite both fields every time you create or update the spec.
 
 ```markdown
 ---

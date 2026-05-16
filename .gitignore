@@ -6,3 +6,6 @@ decisions-pending.md
 
 # /visualize throwaway HTML previews
 .pdeq/viz/
+
+# Local Claude settings (per-developer permissions)
+.claude/settings.local.json
