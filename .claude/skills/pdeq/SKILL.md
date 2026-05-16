@@ -7,7 +7,7 @@ description: Add the PDEQ spec-driven development framework to the current proje
 
 **Add PDEQ to the current project.**
 
-PDEQ is a Claude Code framework that gives a project four structured lanes — Product, Design, Engineering, QA — with traceable requirements, lane discipline, and a spec-first workflow.
+PDEQ is a multi-harness coding-agent framework that gives a project four structured lanes — Product, Design, Engineering, QA — with traceable requirements, lane discipline, and a spec-first workflow. v1 supports Claude Code, Codex CLI, and Pi. This skill is the Claude Code surface for setup; consumers using other harnesses install via `scripts/init.sh` directly with the `--harnesses` flag.
 
 Local PDEQ repo: `/Users/ldstreet/Development/pdeq`
 
@@ -35,11 +35,12 @@ If already installed, tell the user PDEQ is already set up, and offer to run `/p
 
 ## Step 1: Determine Install Type
 
-Ask the user one question:
+Ask the user two questions (one combined prompt is fine):
 
-> Is this a **new (greenfield) project**, an **existing project** with code already written, or a **nested/monorepo install** (PDEQ goes inside a subfolder)?
+1. > Is this a **new (greenfield) project**, an **existing project** with code already written, or a **nested/monorepo install** (PDEQ goes inside a subfolder)?
+2. > Which coding-agent harnesses do you want pdeq materialized for? (default `claude`; can be a comma-separated list of `claude`, `codex`, `pi`)
 
-Based on the answer, proceed to the matching path below.
+Based on the first answer, proceed to the matching path below. Pass the harness list to `init.sh` via `--harnesses <list>` (omit the flag to accept the default `claude`).
 
 ---
 
@@ -47,13 +48,14 @@ Based on the answer, proceed to the matching path below.
 
 ```bash
 git submodule add /Users/ldstreet/Development/pdeq .pdeq
-bash .pdeq/scripts/init.sh
+bash .pdeq/scripts/init.sh --harnesses <list>
 ```
 
 When done:
-- Tell the user PDEQ is installed
-- Tell them to open Claude Code (if not already in it) and run `/pdeq-kickoff [feature description]` to start their first feature
-- Mention they can define platforms by editing the platform table in `CLAUDE.md`
+- Tell the user PDEQ is installed and which harnesses were materialized
+- For Claude Code users: invoke `/pdeq-kickoff [feature description]` to start their first feature
+- For Codex/Pi users: ask their agent to "do a pdeq kickoff for X" — same workflow, no markdown slash command needed
+- Mention they can define platforms by editing the platform table in `AGENTS.md` (or `CLAUDE.md` for Claude users)
 
 ---
 
@@ -67,13 +69,14 @@ Then run:
 
 ```bash
 git submodule add /Users/ldstreet/Development/pdeq .pdeq
-bash .pdeq/scripts/init.sh --code-root <answer-1> --platforms <answer-2>
+bash .pdeq/scripts/init.sh --code-root <answer-1> --platforms <answer-2> --harnesses <harness-list>
 ```
 
 When done:
-- Tell the user PDEQ is installed with `pdeq.json` configured
-- Tell them to run `/pdeq-bootstrap` in Claude Code to analyze their existing code and generate draft specs
-- Mention `/pdeq-bootstrap --dry-run` is available to preview without writing files
+- Tell the user PDEQ is installed with `pdeq.json` configured (including the harness list)
+- For Claude Code users: invoke `/pdeq-bootstrap` to analyze their existing code and generate draft specs
+- For Codex/Pi users: ask their agent to "bootstrap pdeq from existing code"
+- Mention `--dry-run` is available to preview without writing files (works in either invocation form)
 
 ---
 
@@ -93,13 +96,14 @@ bash /Users/ldstreet/Development/pdeq/scripts/init.sh \
   --nested <answer-1> \
   --label <answer-2> \
   --code-root <answer-3> \
-  --platforms <answer-4>
+  --platforms <answer-4> \
+  --harnesses <harness-list>
 ```
 
 When done:
 - Tell the user PDEQ is installed as a nested component
-- Tell them `.pdeq`, `scripts/`, and `.claude/commands/` were symlinked at the git root
-- Tell them to run `/pdeq-bootstrap` to generate draft specs from existing code, or `/pdeq-kickoff` to start fresh
+- Tell them `.pdeq`, `scripts/`, and any per-harness command directories were anchored at the git root
+- Tell them to invoke `/pdeq-bootstrap` (or ask their agent to bootstrap from existing code) to generate draft specs, or `/pdeq-kickoff` to start fresh
 
 ---
 

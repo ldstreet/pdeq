@@ -3,5 +3,6 @@
   "specsRoot": ".",
   "codeRoot": ".",
   "platforms": ["cli"],
+  "harnesses": ["claude", "codex"],
   "selfHost": true
 }

@@ -1,6 +1,8 @@
 # PDEQ
 
-A Claude Code AI agent framework for structured software development across four lanes: **P**roduct, **D**esign, **E**ngineering, **Q**A.
+A coding-agent framework for structured software development across four lanes: **P**roduct, **D**esign, **E**ngineering, **Q**A.
+
+PDEQ works with multiple coding-agent harnesses. v1 supports **Claude Code**, **Codex CLI**, and **Pi**. The canonical agent-instructions file is `AGENTS.md` (the cross-harness convention); `CLAUDE.md` wrappers are emitted automatically for Claude users when `claude` is in the harness list.
 
 Specs drive code. Requirements are fully traceable from definition to test. Each functional area stays in its lane.
 
@@ -9,9 +11,17 @@ Specs drive code. Requirements are fully traceable from definition to test. Each
 ## Quick Install
 
 ```bash
-# From your project root
+# From your project root — defaults to harnesses: ["claude"]
 git submodule add git@github.com:ldstreet/pdeq.git .pdeq
 bash .pdeq/scripts/init.sh
+```
+
+Specify additional harnesses with `--harnesses`:
+
+```bash
+bash .pdeq/scripts/init.sh --harnesses claude,codex     # Claude + Codex
+bash .pdeq/scripts/init.sh --harnesses codex             # Codex only
+bash .pdeq/scripts/init.sh --harnesses pi                # Pi only
 ```
 
 Or, if you already have PDEQ cloned locally:
@@ -20,9 +30,9 @@ Or, if you already have PDEQ cloned locally:
 bash /path/to/pdeq/scripts/init.sh --pdeq-url /path/to/pdeq
 ```
 
-Then open Claude Code and run `/pdeq-kickoff` to start your first feature.
+Then invoke `/pdeq-kickoff` (or, in harnesses without markdown slash commands, ask your agent to "kickoff a feature for X") to start your first feature.
 
-**Adding PDEQ to an existing codebase?** See [docs/bootstrap.md](docs/bootstrap.md) or run `/pdeq-bootstrap` in Claude Code.
+**Adding PDEQ to an existing codebase?** See [docs/bootstrap.md](docs/bootstrap.md) or invoke `/pdeq-bootstrap`.
 
 ---
 
@@ -40,11 +50,14 @@ Then open Claude Code and run `/pdeq-kickoff` to start your first feature.
 
 ### Folder Structure
 
+The exact files materialized per lane depend on the `harnesses` list in `pdeq.json`. Below shows a `harnesses: ["claude", "codex"]` install — for `claude` only, omit the `AGENTS.md` symlinks; for `codex`/`pi` only, omit the `CLAUDE.md` wrappers.
+
 ```
 your-project/
 ├── .pdeq/                  # PDEQ submodule (framework agent files)
 ├── product/                # Requirements, user stories, acceptance criteria
-│   └── CLAUDE.md           # → @../.pdeq/product/CLAUDE.md
+│   ├── AGENTS.md           # → ../.pdeq/product/AGENTS.md (symlink, for codex/pi)
+│   └── CLAUDE.md           # @../.pdeq/product/AGENTS.md (import wrapper, for claude)
 ├── design/
 │   └── <platform>/         # UI/UX specs, one subfolder per platform
 ├── engineering/
@@ -52,9 +65,10 @@ your-project/
 │   └── apps/<platform>/    # Source code
 ├── qa/
 │   └── <platform>/         # Test plans and coverage matrices
-├── .claude/commands/       # Slash commands (symlinked from .pdeq)
+├── .claude/commands/       # Slash commands — created only when claude is enabled
 ├── scripts/                # Audit and utility scripts (symlinked from .pdeq)
-├── CLAUDE.md               # @.pdeq/CLAUDE.md + project-specific overrides
+├── AGENTS.md               # → .pdeq/AGENTS.md (symlink, for codex/pi)
+├── CLAUDE.md               # @.pdeq/AGENTS.md + project-specific overrides (for claude)
 ├── index.md                # Traceability index — slug → file map
 ├── glossary.md             # Shared vocabulary
 └── decisions.md            # Architectural decision log
@@ -72,7 +86,7 @@ git submodule add git@github.com:ldstreet/pdeq.git .pdeq
 bash .pdeq/scripts/init.sh
 ```
 
-`init.sh` creates the folder structure, wires up `@` imports in each `CLAUDE.md`, and symlinks the commands and scripts. It's idempotent — safe to run again if something was skipped.
+`init.sh` creates the folder structure, materializes the right agent-instructions file per enabled harness (Claude gets `CLAUDE.md` `@import` wrappers; other harnesses get `AGENTS.md` symlinks), and symlinks the slash commands and scripts where the harness expects them. It's idempotent — safe to run again, and re-running after editing `harnesses` in `pdeq.json` reconciles the filesystem to match.
 
 ### Existing project
 
@@ -82,7 +96,7 @@ git submodule add git@github.com:ldstreet/pdeq.git .pdeq
 bash .pdeq/scripts/init.sh --code-root src --platforms web --interactive
 ```
 
-Then run `/pdeq-bootstrap` in Claude Code to analyze your existing code and generate draft specs. See [docs/bootstrap.md](docs/bootstrap.md) for the full walkthrough.
+Then run `/pdeq-bootstrap` (or, in harnesses without markdown slash commands, ask your agent to "bootstrap pdeq from existing code") to analyze your existing code and generate draft specs. See [docs/bootstrap.md](docs/bootstrap.md) for the full walkthrough.
 
 ### Nested install (monorepo package or feature subfolder)
 
@@ -96,7 +110,7 @@ bash /path/to/pdeq/scripts/init.sh \
   --platforms cli
 ```
 
-This installs PDEQ into the current subfolder, points it at the real git root (`../..`), and generates `pdeq.json`. Scripts and `.claude/commands/` are symlinked from the git root so Claude Code can find them.
+This installs PDEQ into the current subfolder, points it at the real git root (`../..`), and generates `pdeq.json`. Scripts and any per-harness command directories are anchored at the git root so the harness can discover them.
 
 ### Receiving updates
 
@@ -111,9 +125,7 @@ git add .pdeq && git commit -m "update pdeq framework"
 
 ## Slash Commands
 
-Open Claude Code in your project and use:
-
-All pdeq-installed commands begin with the `pdeq-` prefix — type `/pdeq` and tab-complete to discover the full set.
+In harnesses that support markdown-defined slash commands (Claude Code at v1), all pdeq-installed commands begin with the `pdeq-` prefix — type `/pdeq` in your palette and tab-complete to discover the full set. In harnesses without markdown slash commands (Codex CLI and Pi at v1), invoke the same workflows by asking your agent in prose (e.g., "do a pdeq kickoff for X").
 
 | Command | What it does |
 |---|---|
@@ -181,6 +193,7 @@ For non-standard installs (nested, monorepo, separate code root), create `pdeq.j
 | `specsRoot` | string | `"."` | Path from `pdeq.json` to the directory containing `product/`, `design/`, etc. |
 | `codeRoot` | string | `"."` | Path to source code root (used by `/pdeq-bootstrap`) |
 | `platforms` | string[] | — | Platform IDs — subfolders in `design/`, `engineering/`, `qa/` |
+| `harnesses` | string[] | `["claude"]` | Coding-agent harnesses this project supports. v1 recognized: `claude`, `codex`, `pi`. |
 | `pdeqDir` | string | `".pdeq"` | Path to the `.pdeq` submodule, relative to git root |
 | `nested.repoRoot` | string | — | Path up to the actual git root |
 | `nested.label` | string | — | Component name shown in agent context |
