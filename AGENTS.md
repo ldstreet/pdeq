@@ -394,7 +394,7 @@ Slash commands, command definitions, and hook behavior are covered in their resp
 
 ## Slash Commands
 
-All pdeq-installed slash commands carry the `pdeq-` prefix (see `product/cli-conventions.md`). Typing `/pdeq` in the slash-command palette tab-completes the full set.
+All pdeq-installed slash commands carry the `pdeq-` prefix (see `product/cli-conventions.md`). In harnesses that support markdown slash commands (Claude Code at v1), typing `/pdeq` in the palette tab-completes the full set.
 
 - **`/pdeq-kickoff [feature description]`** — Full feature kickoff. Checks `roadmap/` for an existing entry to pull context from, then determines target platform(s) and creates product spec → design spec → engineering spec → QA test plan (plus platform-specific variants as needed) → updates index, glossary, and pending decisions → runs review and consistency checks. If a roadmap entry was used, remove the corresponding item from `roadmap/<feature>.md` once the spec is minted.
 - **`/pdeq-impact [slug or feature]`** — Impact analysis. Reads `index.md` to report every artifact that would need to change if a requirement is modified.
@@ -403,6 +403,18 @@ All pdeq-installed slash commands carry the `pdeq-` prefix (see `product/cli-con
 - **`/pdeq-migrate`** — Apply pending pdeq migrations to bring the project into conformance with the pinned pdeq version.
 - **`/pdeq-visualize <feature>`** — Render a design spec to a self-contained HTML preview and open it in the browser.
 - **`/pdeq-update`** — Bump the pinned pdeq submodule and chain into `/pdeq-migrate` in one invocation.
+
+### Invoking pdeq workflows in harnesses without markdown slash commands
+
+Pdeq workflows are defined as prompt files at `.pdeq/pdeq-rules/commands/pdeq-<name>.md` (or `pdeq-rules/commands/pdeq-<name>.md` in pdeq self-host). Each file is a complete, self-contained set of instructions for performing the corresponding workflow. The Claude Code `/pdeq-<name>` slash commands work by reading that exact file and following it.
+
+**If you are running in a harness that does not support markdown-defined slash commands** (Codex CLI and Pi at v1), and the user asks you to run a pdeq workflow — whether they say "kickoff a feature for X", "do a pdeq migration", "show pdeq status", or any phrasing that maps to one of the commands listed above — do the following:
+
+1. Locate the corresponding prompt file at `.pdeq/pdeq-rules/commands/pdeq-<name>.md`.
+2. Read it in full.
+3. Execute the workflow as written, substituting the user's arguments for any `$ARGUMENTS` token in the prompt.
+
+This is the supported invocation path for non-Claude harnesses until a native extension exists for that harness. Do not try to reconstruct the workflow from the brief one-line description above — the prompt file contains the full step-by-step instructions, error handling, and decision logic.
 
 ## Quality Subagents
 
