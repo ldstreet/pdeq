@@ -17,7 +17,7 @@ This file maps every requirement slug to all files that define or reference it. 
 ## Index
 
 | Slug | Type | Defined In | Referenced In | Code |
-|------|------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|------|------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | FR-migrations-version-field | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, pdeq.schema.json, VERSION | scripts/init.sh:543 |
 | FR-migrations-version-readable | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:82, scripts/migrate.sh:95 |
 | FR-migrations-absent-version | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | scripts/migrate.sh:82 |
@@ -26,7 +26,7 @@ This file maps every requirement slug to all files that define or reference it. 
 | FR-migrations-mechanical-block | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:155 |
 | FR-migrations-semantic-block | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:155 |
 | FR-migrations-order-within | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | pdeq-rules/commands/pdeq-migrate.md:1 |
-| FR-migrations-author-written | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | migrations/TEMPLATE.md:8 |
+| FR-migrations-author-written | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | migrations/0.4.0.md:8, migrations/TEMPLATE.md:8 |
 | FR-migrations-explicit-run | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | pdeq-rules/commands/pdeq-migrate.md:1 |
 | FR-migrations-pending-detection | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:110 |
 | FR-migrations-ordered-application | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | pdeq-rules/commands/pdeq-migrate.md:1 |
@@ -34,7 +34,7 @@ This file maps every requirement slug to all files that define or reference it. 
 | FR-migrations-nonbreaking-advance | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:301 |
 | FR-migrations-noop-when-current | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:110 |
 | FR-migrations-dry-run | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | pdeq-rules/commands/pdeq-migrate.md:1 |
-| FR-migrations-idempotent | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | migrations/TEMPLATE.md:8 |
+| FR-migrations-idempotent | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | migrations/0.4.0.md:8, migrations/TEMPLATE.md:8 |
 | FR-migrations-scoped-writes | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md, scripts/migrate.sh | scripts/migrate.sh:354 |
 | FR-migrations-breaking-gate | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | scripts/audit-migrations.sh:23 |
 | FR-migrations-no-false-positive | FR | product/migrations.md | design/cli/migrations.md, engineering/cli/migrations.md, qa/cli/migrations.md | scripts/audit-migrations.sh:23 |
@@ -255,11 +255,11 @@ This file maps every requirement slug to all files that define or reference it. 
 | FR-harness-agnostic-bootstrap-inline | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md | pdeq-rules/commands/pdeq-bootstrap.md:3 |
 | FR-harness-agnostic-no-subagent-files | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md | pdeq-rules/commands/pdeq-bootstrap.md:3 |
 | FR-harness-agnostic-skill-claude-only | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
-| FR-harness-agnostic-migration | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
-| FR-harness-agnostic-hard-cutover | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
-| FR-harness-agnostic-migration-default-harness | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
-| FR-harness-agnostic-migration-idempotent | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
-| FR-harness-agnostic-migration-removes-subagents | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
+| FR-harness-agnostic-migration | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md | migrations/0.4.0.md:8 |
+| FR-harness-agnostic-hard-cutover | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md | migrations/0.4.0.md:8 |
+| FR-harness-agnostic-migration-default-harness | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md | migrations/0.4.0.md:8 |
+| FR-harness-agnostic-migration-idempotent | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md | migrations/0.4.0.md:8 |
+| FR-harness-agnostic-migration-removes-subagents | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md | migrations/0.4.0.md:8 |
 | FR-harness-agnostic-harness-change-reinstall | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
 | FR-harness-agnostic-removed-harness-cleaned | FR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md | scripts/init.sh:252, scripts/init.sh:505 |
 | NFR-harness-agnostic-no-new-deps | NFR | product/harness-agnostic.md | engineering/cli/harness-agnostic.md, qa/cli/harness-agnostic.md |  |
