@@ -39,6 +39,22 @@
         ["web", "mobile", "cli"]
       ]
     },
+    "harnesses": {
+      "type": "array",
+      "description": "Coding-agent harnesses this project supports. Drives per-harness file materialization in scripts/init.sh: each enabled harness gets its expected agent-instructions file (CLAUDE.md, AGENTS.md, etc.) at each lane and, when applicable, a slash-command directory. Omit to default to ['claude'] for v0.3.x back-compat. Realizes FR-harness-agnostic-config and FR-harness-agnostic-v1-harness-set.",
+      "items": {
+        "type": "string",
+        "enum": ["claude", "codex", "pi"]
+      },
+      "uniqueItems": true,
+      "default": ["claude"],
+      "examples": [
+        ["claude"],
+        ["codex"],
+        ["pi"],
+        ["claude", "codex"]
+      ]
+    },
     "pdeqDir": {
       "type": "string",
       "description": "Path to the .pdeq submodule or framework directory, relative to the git root. Defaults to '.pdeq'.",
@@ -79,17 +95,19 @@
   "examples": [
     {
       "$comment": "Root install — PDEQ and code live side-by-side at the repo root",
-      "pdeqVersion": "0.2.0",
+      "pdeqVersion": "0.4.0",
       "specsRoot": ".",
       "codeRoot": "src",
       "platforms": ["web"],
+      "harnesses": ["claude"],
       "pdeqDir": ".pdeq"
     },
     {
-      "$comment": "Nested install — PDEQ lives inside a feature subfolder",
+      "$comment": "Nested install — PDEQ lives inside a feature subfolder, used from multiple harnesses",
       "specsRoot": ".",
       "codeRoot": "../src",
       "platforms": ["ios"],
+      "harnesses": ["claude", "codex"],
       "nested": {
         "repoRoot": "../../..",
         "label": "ios-app"
